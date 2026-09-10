@@ -1,0 +1,495 @@
+```html
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutina & Control Financiero</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        },
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            touch-action: manipulation;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-darkBg min-h-screen text-slate-100 flex flex-col justify-between max-w-md mx-auto relative pb-20 border-x border-slate-800 shadow-2xl">
+
+    <!-- Header -->
+    <header class="p-4 bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-800 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">Control Diario</h1>
+            <p id="currentDateDisplay" class="text-xs text-slate-400 font-medium">Cargando fecha...</p>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950 text-emerald-400 border border-emerald-800">
+                Meta: $15.44
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="p-4 space-y-6 flex-1">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex bg-slate-800/80 p-1 rounded-xl text-sm font-medium border border-slate-700">
+            <button id="tabTodayBtn" onclick="switchTab('today')" class="flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold transition duration-200 flex items-center justify-center gap-1.5 shadow">
+                <i class="fa-solid fa-calendar-day text-xs"></i> Hoy
+            </button>
+            <button id="tabHistoryBtn" onclick="switchTab('history')" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition duration-200 flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-chart-line text-xs"></i> Estadísticas
+            </button>
+        </div>
+
+        <!-- VIEW 1: TODAY's ROUTINE & EARNINGS -->
+        <div id="todayView" class="space-y-6">
+            
+            <!-- Financial Summary Card -->
+            <section class="bg-cardBg rounded-2xl p-4 border border-slate-700/60 shadow-lg space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-700/80 pb-3">
+                    <span class="text-sm text-slate-300 font-medium flex items-center gap-2">
+                        <i class="fa-solid fa-wallet text-emerald-400"></i> Ingreso Diario
+                    </span>
+                    <span id="financialStatusBadge" class="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        Pendiente
+                    </span>
+                </div>
+
+                <!-- Earnings Input & Calculations -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Monto Generado Hoy ($)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 font-bold">$</span>
+                            <input type="number" id="dailyEarningsInput" step="0.01" min="0" placeholder="0.00" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-8 pr-4 text-white text-lg font-bold focus:outline-none focus:border-emerald-500 transition"
+                                oninput="updateFinancialCalculations()">
+                        </div>
+                    </div>
+
+                    <!-- Financial Breakdown Progress Bar -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>Progreso de Meta ($15.44)</span>
+                            <span id="earningsPercentage">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-800">
+                            <div id="earningsProgressBar" class="bg-gradient-to-r from-amber-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Target Status Alert -->
+                    <div id="targetStatusText" class="text-xs text-slate-400 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                        <span>Faltante para meta:</span>
+                        <strong class="text-amber-400 font-bold">$15.44</strong>
+                    </div>
+
+                    <!-- Breakdown Info -->
+                    <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+                        <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                            <p class="text-[10px] text-slate-400">Ahorro ($9.44)</p>
+                            <p id="savingsBreakdown" class="text-xs font-semibold text-emerald-400">$0.00</p>
+                        </div>
+                        <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                            <p class="text-[10px] text-slate-400">Comida ($3.00)</p>
+                            <p id="foodBreakdown" class="text-xs font-semibold text-blue-400">$0.00</p>
+                        </div>
+                        <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                            <p class="text-[10px] text-slate-400">Gas/Datos ($3.00)</p>
+                            <p id="dataBreakdown" class="text-xs font-semibold text-purple-400">$0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Daily Routine Checklist -->
+            <section class="space-y-3">
+                <div class="flex justify-between items-center px-1">
+                    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-400"></i> Hábitos y Salidas
+                    </h2>
+                    <span id="checklistProgress" class="text-xs text-slate-400">0/6 completados</span>
+                </div>
+
+                <div id="habitList" class="space-y-2.5">
+                    <!-- Dynamic Habit Items inserted by JavaScript -->
+                </div>
+            </section>
+        </div>
+
+        <!-- VIEW 2: STATISTICS & HISTORICAL DATA -->
+        <div id="historyView" class="space-y-6 hidden">
+            
+            <!-- Long-Term Metrics Overview -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-cardBg p-4 rounded-2xl border border-slate-700/60 shadow-md">
+                    <p class="text-xs text-slate-400 mb-1">Ahorro Acumulado</p>
+                    <h3 id="totalSavingsAccumulated" class="text-xl font-extrabold text-emerald-400">$0.00</h3>
+                    <p class="text-[10px] text-slate-500 mt-1">Días en meta × $9.44</p>
+                </div>
+                <div class="bg-cardBg p-4 rounded-2xl border border-slate-700/60 shadow-md">
+                    <p class="text-xs text-slate-400 mb-1">Efectividad Rutina</p>
+                    <h3 id="habitCompletionRateRate" class="text-xl font-extrabold text-blue-400">0%</h3>
+                    <p class="text-[10px] text-slate-500 mt-1">% de tareas completadas</p>
+                </div>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="bg-cardBg p-4 rounded-2xl border border-slate-700/60 shadow-md space-y-3">
+                <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-column text-emerald-400"></i> Historial de Ingresos Semanal
+                </h3>
+                <div class="h-44 w-full">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Historical Log Table -->
+            <div class="bg-cardBg rounded-2xl border border-slate-700/60 shadow-md overflow-hidden">
+                <div class="p-3 border-b border-slate-700 bg-slate-800/40 flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Historial Registrado</h3>
+                    <button onclick="clearAllData()" class="text-[11px] text-red-400 hover:text-red-300 transition">
+                        <i class="fa-solid fa-trash-can"></i> Borrar datos
+                    </button>
+                </div>
+                <div id="historyLogList" class="divide-y divide-slate-800 max-h-60 overflow-y-auto hide-scrollbar text-xs">
+                    <!-- History entries dynamic -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Default Habit Items Structure
+        const HABITS_TEMPLATE = [
+            { id: 's1', title: 'Salida 1 ($5.15)', time: '06:00 AM - 08:30 AM', icon: 'fa-car', checked: false },
+            { id: 'cook', title: 'Cocinar para el día', time: '08:30 AM - 10:30 AM', icon: 'fa-utensils', checked: false },
+            { id: 's2', title: 'Salida 2 ($5.15)', time: '10:30 AM - 01:00 PM', icon: 'fa-car', checked: false },
+            { id: 's3', title: 'Salida 3 ($5.15)', time: '03:00 PM - 05:30 PM', icon: 'fa-car', checked: false },
+            { id: 'save', title: 'Ahorro Guardado ($9.44)', time: 'Fin de jornada', icon: 'fa-piggy-bank', checked: false },
+            { id: 'sleep', title: 'Dormir a Tiempo', time: '09:30 PM', icon: 'fa-bed', checked: false }
+        ];
+
+        const DAILY_TARGET = 15.44;
+        let todayKey = new Date().toISOString().split('T')[0];
+        let appData = loadData();
+        let chartInstance = null;
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            displayDate();
+            ensureTodayRecord();
+            renderHabits();
+            updateUIFromState();
+            initChart();
+        });
+
+        // Date Display Formatting
+        function displayDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('es-ES', options);
+            document.getElementById('currentDateDisplay').textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+        }
+
+        // Data Storage Handlers
+        function loadData() {
+            const saved = localStorage.getItem('routine_pwa_data');
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        function saveData() {
+            localStorage.setItem('routine_pwa_data', JSON.stringify(appData));
+        }
+
+        // Ensure record exists for today
+        function ensureTodayRecord() {
+            if (!appData[todayKey]) {
+                appData[todayKey] = {
+                    earnings: 0,
+                    habits: JSON.parse(JSON.stringify(HABITS_TEMPLATE))
+                };
+                saveData();
+            }
+        }
+
+        function renderHabits() {
+            const container = document.getElementById('habitList');
+            container.innerHTML = '';
+
+            const currentHabits = appData[todayKey].habits;
+
+            currentHabits.forEach((habit, index) => {
+                const item = document.createElement('div');
+                item.className = `flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                    habit.checked 
+                    ? 'bg-emerald-950/30 border-emerald-800/60 text-slate-200' 
+                    : 'bg-cardBg border-slate-700/60 text-slate-300 hover:border-slate-600'
+                }`;
+                
+                item.onclick = () => toggleHabit(index);
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center ${
+                            habit.checked ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'
+                        }">
+                            <i class="fa-solid ${habit.icon} text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold ${habit.checked ? 'line-through text-slate-400' : ''}">${habit.title}</p>
+                            <p class="text-[10px] text-slate-400">${habit.time}</p>
+                        </div>
+                    </div>
+                    <div class="w-6 h-6 rounded-md border flex items-center justify-center transition ${
+                        habit.checked ? 'bg-emerald-500 border-emerald-400 text-slate-950' : 'border-slate-600 bg-slate-900'
+                    }">
+                        ${habit.checked ? '<i class="fa-solid fa-check text-xs font-black"></i>' : ''}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            updateChecklistProgress();
+        }
+
+        function toggleHabit(index) {
+            appData[todayKey].habits[index].checked = !appData[todayKey].habits[index].checked;
+            
+            // Auto check savings habit if financial target is met
+            if (appData[todayKey].earnings >= DAILY_TARGET && appData[todayKey].habits[4].id === 'save') {
+                appData[todayKey].habits[4].checked = true;
+            }
+
+            saveData();
+            renderHabits();
+            updateStatsView();
+        }
+
+        function updateChecklistProgress() {
+            const habits = appData[todayKey].habits;
+            const completed = habits.filter(h => h.checked).length;
+            document.getElementById('checklistProgress').textContent = `${completed}/${habits.length} completados`;
+        }
+
+        function updateFinancialCalculations() {
+            const inputVal = parseFloat(document.getElementById('dailyEarningsInput').value) || 0;
+            appData[todayKey].earnings = inputVal;
+
+            // Automatically check/uncheck savings habit based on input
+            if (inputVal >= DAILY_TARGET) {
+                appData[todayKey].habits[4].checked = true;
+            }
+
+            saveData();
+            renderHabits();
+            updateUIFromState();
+            updateStatsView();
+        }
+
+        function updateUIFromState() {
+            const earnings = appData[todayKey].earnings || 0;
+            document.getElementById('dailyEarningsInput').value = earnings > 0 ? earnings : '';
+
+            // Calculate percentage
+            const percentage = Math.min(Math.round((earnings / DAILY_TARGET) * 100), 100);
+            document.getElementById('earningsPercentage').textContent = `${percentage}%`;
+            document.getElementById('earningsProgressBar').style.width = `${percentage}%`;
+
+            // Status Badge & Status Text
+            const badge = document.getElementById('financialStatusBadge');
+            const statusText = document.getElementById('targetStatusText');
+
+            if (earnings >= DAILY_TARGET) {
+                const extra = (earnings - DAILY_TARGET).toFixed(2);
+                badge.textContent = '¡Meta Lograda!';
+                badge.className = 'text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                
+                statusText.innerHTML = `<span>Sobrante extra:</span> <strong class="text-emerald-400 font-bold">+$${extra}</strong>`;
+            } else {
+                const remaining = (DAILY_TARGET - earnings).toFixed(2);
+                badge.textContent = 'En Progreso';
+                badge.className = 'text-xs font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                
+                statusText.innerHTML = `<span>Faltante para meta:</span> <strong class="text-amber-400 font-bold">$${remaining}</strong>`;
+            }
+
+            // Breakdown
+            const savingsAlloc = Math.min(earnings, 9.44).toFixed(2);
+            const foodAlloc = earnings > 9.44 ? Math.min(earnings - 9.44, 3.00).toFixed(2) : '0.00';
+            const dataAlloc = earnings > 12.44 ? Math.min(earnings - 12.44, 3.00).toFixed(2) : '0.00';
+
+            document.getElementById('savingsBreakdown').textContent = `$${savingsAlloc}`;
+            document.getElementById('foodBreakdown').textContent = `$${foodAlloc}`;
+            document.getElementById('dataBreakdown').textContent = `$${dataAlloc}`;
+        }
+
+        function switchTab(tab) {
+            const todayView = document.getElementById('todayView');
+            const historyView = document.getElementById('historyView');
+            const tabTodayBtn = document.getElementById('tabTodayBtn');
+            const tabHistoryBtn = document.getElementById('tabHistoryBtn');
+
+            if (tab === 'today') {
+                todayView.classList.remove('hidden');
+                historyView.classList.add('hidden');
+
+                tabTodayBtn.className = 'flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold transition duration-200 flex items-center justify-center gap-1.5 shadow';
+                tabHistoryBtn.className = 'flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition duration-200 flex items-center justify-center gap-1.5';
+            } else {
+                todayView.classList.add('hidden');
+                historyView.classList.remove('hidden');
+
+                tabHistoryBtn.className = 'flex-1 py-2 rounded-lg bg-emerald-600 text-white font-semibold transition duration-200 flex items-center justify-center gap-1.5 shadow';
+                tabTodayBtn.className = 'flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition duration-200 flex items-center justify-center gap-1.5';
+
+                updateStatsView();
+            }
+        }
+
+        function updateStatsView() {
+            const keys = Object.keys(appData).sort().reverse();
+            let totalSavings = 0;
+            let totalHabitsChecked = 0;
+            let totalHabitsPossible = 0;
+
+            const logContainer = document.getElementById('historyLogList');
+            logContainer.innerHTML = '';
+
+            keys.forEach(key => {
+                const entry = appData[key];
+                const earnings = entry.earnings || 0;
+                
+                // Accumulate savings if $9.44 target met or partially met
+                if (earnings >= DAILY_TARGET) {
+                    totalSavings += 9.44;
+                } else if (earnings > 0) {
+                    totalSavings += Math.min(earnings, 9.44);
+                }
+
+                // Calculate habits effectiveness
+                const habits = entry.habits || [];
+                const checkedCount = habits.filter(h => h.checked).length;
+                totalHabitsChecked += checkedCount;
+                totalHabitsPossible += habits.length;
+
+                // Build Log Rows
+                const row = document.createElement('div');
+                row.className = 'p-3 flex justify-between items-center';
+                const isGoalMet = earnings >= DAILY_TARGET;
+
+                row.innerHTML = `
+                    <div>
+                        <p class="font-bold text-slate-200">${key}</p>
+                        <p class="text-[10px] text-slate-400">${checkedCount}/${habits.length} hábitos completados</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold ${isGoalMet ? 'text-emerald-400' : 'text-amber-400'}">$${earnings.toFixed(2)}</p>
+                        <span class="text-[9px] px-1.5 py-0.2 rounded ${isGoalMet ? 'bg-emerald-950 text-emerald-300' : 'bg-slate-800 text-slate-400'}">
+                            ${isGoalMet ? 'Meta OK' : 'Incompleto'}
+                        </span>
+                    </div>
+                `;
+                logContainer.appendChild(row);
+            });
+
+            // Update Header KPI Cards
+            document.getElementById('totalSavingsAccumulated').textContent = `$${totalSavings.toFixed(2)}`;
+            const rate = totalHabitsPossible > 0 ? Math.round((totalHabitsChecked / totalHabitsPossible) * 100) : 0;
+            document.getElementById('habitCompletionRateRate').textContent = `${rate}%`;
+
+            updateChartData();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Ingresos ($)',
+                        data: [],
+                        backgroundColor: '#22c55e',
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+            updateChartData();
+        }
+
+        function updateChartData() {
+            if (!chartInstance) return;
+
+            // Get last 7 entries
+            const keys = Object.keys(appData).sort().slice(-7);
+            const labels = keys.map(k => k.slice(5)); // MM-DD
+            const data = keys.map(k => appData[k].earnings || 0);
+
+            chartInstance.data.labels = labels;
+            chartInstance.data.datasets[0].data = data;
+            chartInstance.update();
+        }
+
+        function clearAllData() {
+            if (confirm('¿Estás seguro de que deseas borrar todo el historial acumulado?')) {
+                localStorage.removeItem('routine_pwa_data');
+                appData = {};
+                ensureTodayRecord();
+                renderHabits();
+                updateUIFromState();
+                updateStatsView();
+            }
+        }
+    </script>
+</body>
+</html>
+```
