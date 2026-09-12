@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Control Diario - Mi Rutina</title>
+    <title>Mi Rutina - Control Diario</title>
     <meta name="theme-color" content="#0d1117">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,6 +18,7 @@
             --accent-green-bright: #3fb950;
             --accent-orange: #d97706;
             --accent-orange-bright: #f59e0b;
+            --accent-red: #da3633;
             --text-main: #f0f6fc;
             --text-sub: #8b949e;
             --border-color: #30363d;
@@ -36,10 +37,10 @@
             background-color: var(--bg-primary);
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 30px;
+            padding-bottom: 40px;
         }
 
-        /* HEADER & LOGO */
+        /* HEADER */
         .app-header {
             background-color: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
@@ -71,13 +72,20 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .settings-btn {
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-icon-top {
             background: transparent;
-            border: none;
-            color: var(--text-sub);
-            font-size: 1.2rem;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
             cursor: pointer;
-            padding: 4px;
         }
 
         .container {
@@ -86,7 +94,7 @@
             padding: 16px;
         }
 
-        /* TABS NAV */
+        /* TABS */
         .nav-tabs {
             display: flex;
             background: var(--bg-card);
@@ -113,7 +121,7 @@
             color: #ffffff;
         }
 
-        /* CARDS & SECTIONS */
+        /* CARDS */
         .card {
             background-color: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -130,7 +138,7 @@
         }
 
         .card-title {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -156,7 +164,29 @@
             border: 1px solid var(--accent-green);
         }
 
-        /* INPUTS & PROGRESS */
+        /* SELECTOR DE DÍAS RETROACTIVOS */
+        .day-selector-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+        }
+
+        .day-selector-bar select {
+            background: var(--bg-primary);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        /* INPUTS */
         .input-group {
             margin-bottom: 12px;
         }
@@ -192,10 +222,6 @@
             font-size: 1.2rem;
             font-weight: 700;
             outline: none;
-        }
-
-        .amount-input:focus {
-            border-color: var(--accent-green-bright);
         }
 
         .progress-bar-bg {
@@ -267,10 +293,6 @@
             gap: 12px;
         }
 
-        .task-icon {
-            font-size: 1.2rem;
-        }
-
         .task-title {
             font-size: 0.9rem;
             font-weight: 600;
@@ -290,15 +312,63 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .checklist-item.done .custom-checkbox {
             background-color: var(--accent-green);
             border-color: var(--accent-green);
+            color: white;
         }
 
-        /* WIZARD MODAL */
+        /* BOTONES FIN DE DÍA */
+        .btn-action-main {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            background: var(--accent-green);
+            color: white;
+        }
+
+        /* ESTADÍSTICAS / CALENDARIO TIPO VELA-CALOR */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .heatmap-cell {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 0.75rem;
+        }
+
+        .heatmap-cell.success {
+            background: rgba(46, 160, 67, 0.3);
+            border-color: var(--accent-green);
+            color: var(--accent-green-bright);
+        }
+
+        .heatmap-cell.partial {
+            background: rgba(217, 119, 6, 0.3);
+            border-color: var(--accent-orange);
+            color: var(--accent-orange-bright);
+        }
+
+        .heatmap-cell.fail {
+            background: rgba(218, 54, 51, 0.2);
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        /* MODAL WIZARD */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -325,7 +395,7 @@
         .wizard-step { display: none; }
         .wizard-step.active { display: block; }
 
-        .btn {
+        .btn-modal {
             width: 100%;
             padding: 12px;
             border: none;
@@ -333,17 +403,8 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 12px;
-        }
-
-        .btn-primary {
             background-color: var(--accent-green);
             color: white;
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-sub);
         }
 
         .wizard-input {
@@ -355,20 +416,23 @@
             border-radius: 8px;
             margin-top: 4px;
             margin-bottom: 12px;
+            outline: none;
         }
 
-        .habit-row-input {
+        .habit-builder-row {
             display: flex;
             gap: 6px;
             margin-bottom: 8px;
+            align-items: center;
         }
 
-        .habit-row-input input {
+        .habit-builder-row input, .habit-builder-row select {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 8px;
             border-radius: 6px;
+            outline: none;
         }
 
         .hidden { display: none !important; }
@@ -376,48 +440,56 @@
 </head>
 <body>
 
-    <!-- APP HEADER -->
+    <!-- HEADER -->
     <header class="app-header">
         <div class="logo-container">
-            <!-- 2D TARGET LOGO SVG -->
             <svg class="target-logo-svg" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="42" fill="none" stroke="#d97706" stroke-width="8"/>
                 <circle cx="50" cy="50" r="26" fill="none" stroke="#2ea043" stroke-width="8"/>
-                <!-- Flecha Doble Color 2D -->
                 <path d="M50 88 V18 M30 38 L50 18 L70 38" stroke="#2ea043" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                 <path d="M50 88 V18 M50 18 L70 38" stroke="#f59e0b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
             </svg>
             <span class="brand-title">Mi Rutina</span>
         </div>
-        <button class="settings-btn" id="openSettingsBtn">⚙️</button>
+        <div class="header-actions">
+            <button class="btn-icon-top" onclick="openWizard()">⚙️ Configurar</button>
+        </div>
     </header>
 
     <div class="container">
         <!-- NAVEGACIÓN -->
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('today')">📅 Hoy</button>
-            <button class="tab-btn" onclick="switchTab('stats')">📊 Estadísticas</button>
+            <button class="tab-btn active" onclick="switchTab('today')">📅 Día Actual</button>
+            <button class="tab-btn" onclick="switchTab('stats')">📊 Mes y Rendimiento</button>
         </div>
 
-        <!-- VISTA HOY -->
+        <!-- SELECTOR DE DÍAS RETROACTIVOS (2 días hábiles) -->
+        <div class="day-selector-bar">
+            <span>Editando fecha:</span>
+            <select id="selectedDateSelect" onchange="changeActiveDate(this.value)">
+                <!-- Dinámico -->
+            </select>
+        </div>
+
+        <!-- VISTA HOY / DÍA SELECCIONADO -->
         <div id="view-today">
-            <!-- CARDA DE FINANZAS -->
+            <!-- FINANZAS -->
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">💳 Ingreso Diario</span>
+                    <span class="card-title">💳 Ingresos y Metas</span>
                     <span class="badge badge-orange" id="statusBadge">En Progreso</span>
                 </div>
 
                 <div class="input-group">
-                    <span class="input-label">Monto Generado Hoy ($)</span>
+                    <span class="input-label" id="targetReasonLabel">Monto Generado Hoy ($)</span>
                     <div class="amount-input-wrapper">
                         <span class="currency-symbol">$</span>
-                        <input type="number" id="dailyAmount" class="amount-input" placeholder="0.00" step="0.01" oninput="updateCalculations()">
+                        <input type="number" id="dailyAmount" class="amount-input" placeholder="0.00" step="0.01" oninput="updateDailyFinance()">
                     </div>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-sub);">
-                    <span>Progreso de Meta (<span id="targetText">$15.44</span>)</span>
+                    <span>Meta Financiera (<span id="targetText">$15.44</span>)</span>
                     <span id="percentText">0%</span>
                 </div>
                 <div class="progress-bar-bg">
@@ -432,114 +504,127 @@
                 <!-- DESGLOSE -->
                 <div class="breakdown-grid">
                     <div class="breakdown-item">
-                        <div class="breakdown-label">Ahorro (<span id="lblAhorro">$9.44</span>)</div>
+                        <div class="breakdown-label">Ahorro</div>
                         <div class="breakdown-val" id="valAhorro">$0.00</div>
                     </div>
                     <div class="breakdown-item">
-                        <div class="breakdown-label">Comida (<span id="lblComida">$3.00</span>)</div>
+                        <div class="breakdown-label">Comida</div>
                         <div class="breakdown-val" id="valComida">$0.00</div>
                     </div>
                     <div class="breakdown-item">
-                        <div class="breakdown-label">Gastos (<span id="lblGastos">$3.00</span>)</div>
+                        <div class="breakdown-label">Gastos</div>
                         <div class="breakdown-val" id="valGastos">$0.00</div>
                     </div>
                 </div>
             </div>
 
-            <!-- CARD DE HÁBITOS -->
+            <!-- HÁBITOS -->
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">📋 Hábitos y Rutina</span>
+                    <span class="card-title">📋 Rutina y Hábitos</span>
                     <span class="badge badge-green" id="habitsCount">0/0 completados</span>
                 </div>
-                <div id="checklistContainer">
-                    <!-- Dinámico -->
-                </div>
+                <div id="checklistContainer"></div>
+                
+                <button class="btn-action-main" onclick="finishCurrentDay()">📥 Terminar y Guardar Día</button>
             </div>
         </div>
 
-        <!-- VISTA ESTADÍSTICAS -->
+        <!-- VISTA ESTADÍSTICAS Y MES COMPLETO -->
         <div id="view-stats" class="hidden">
+            <!-- AHORROS - CALENDARIO MENSUAL -->
             <div class="card">
-                <span class="card-title">📈 Ahorro Semanal</span>
-                <canvas id="savingsChart" style="margin-top: 15px;"></canvas>
+                <div class="card-header">
+                    <span class="card-title">💰 Rendimiento de Ahorros (Mes)</span>
+                    <span class="badge badge-green" id="monthSavingsSummary">0% Éxito</span>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-sub); margin-bottom: 8px;">Verde: Meta cumplida | Naranja: Parcial | Rojo: Sin completar</p>
+                <div class="heatmap-grid" id="savingsHeatmap"></div>
             </div>
+
+            <!-- HÁBITOS - CALENDARIO MENSUAL -->
             <div class="card">
-                <span class="card-title">🎯 Cumplimiento de Hábitos</span>
-                <canvas id="habitsChart" style="margin-top: 15px;"></canvas>
+                <div class="card-header">
+                    <span class="card-title">📋 Consistencia de Hábitos (Mes)</span>
+                    <span class="badge badge-orange" id="monthHabitsSummary">0% Éxito</span>
+                </div>
+                <div class="heatmap-grid" id="habitsHeatmap"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL CONFIGURACIÓN / WIZARD -->
+    <!-- MODAL DE CONFIGURACIÓN / WIZARD INICIAL -->
     <div class="modal-overlay hidden" id="wizardModal">
         <div class="modal-card">
             
-            <!-- PASO 1: METAS FINANCIERAS -->
-            <div class="wizard-step active" id="step1">
-                <h3 style="margin-bottom: 10px; color: var(--accent-green-bright);">1. Meta Financiera</h3>
-                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Define tus montos diarios de meta y gastos.</p>
+            <!-- PASO 1: METAS Y CLASIFICACIÓN -->
+            <div class="wizard-step active" id="wStep1">
+                <h3 style="margin-bottom: 8px; color: var(--accent-green-bright);">1. Metas y Clasificación</h3>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Define tus montos y para qué serán destinados.</p>
                 
                 <label class="input-label">Meta Diaria Total ($)</label>
-                <input type="number" id="wMeta" class="wizard-input" value="15.44">
+                <input type="number" id="setupTarget" class="wizard-input" value="15.44">
 
-                <label class="input-label">Monto Ahorro ($)</label>
-                <input type="number" id="wAhorro" class="wizard-input" value="9.44">
+                <label class="input-label">Clasificación 1: Ahorro Destinado ($)</label>
+                <input type="number" id="setupAhorro" class="wizard-input" value="9.44">
 
-                <label class="input-label">Monto Comida ($)</label>
-                <input type="number" id="wComida" class="wizard-input" value="3.00">
+                <label class="input-label">Clasificación 2: Comida Destinada ($)</label>
+                <input type="number" id="setupComida" class="wizard-input" value="3.00">
 
-                <label class="input-label">Monto Gastos/Datos ($)</label>
-                <input type="number" id="wGastos" class="wizard-input" value="3.00">
+                <label class="input-label">Clasificación 3: Gastos/Datos Destinados ($)</label>
+                <input type="number" id="setupGastos" class="wizard-input" value="3.00">
 
-                <button class="btn btn-primary" onclick="nextStep(2)">Siguiente ➡️</button>
+                <button class="btn-modal" onclick="wizardNext(2)">Siguiente: Hábitos ➡️</button>
             </div>
 
-            <!-- PASO 2: HÁBITOS PERSONALIZADOS -->
-            <div class="wizard-step" id="step2">
-                <h3 style="margin-bottom: 10px; color: var(--accent-green-bright);">2. Hábitos y Rutinas</h3>
-                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Agrega tus actividades diarias personalizadas.</p>
+            <!-- PASO 2: HÁBITOS Y HORARIOS FÁCILES -->
+            <div class="wizard-step" id="wStep2">
+                <h3 style="margin-bottom: 8px; color: var(--accent-green-bright);">2. Tus Hábitos Diarios</h3>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Configura tus actividades con horas sencillas.</p>
 
-                <div id="wizardHabitsList">
-                    <!-- Dinámico -->
-                </div>
+                <div id="wizardHabitsBuilder"></div>
 
-                <button class="btn btn-secondary" onclick="addWizardHabitRow()" style="margin-bottom: 12px;">+ Agregar Actividad</button>
-                <button class="btn btn-primary" onclick="saveWizardData()">Guardar y Finalizar ✨</button>
+                <button class="btn-icon-top" style="width:100%; margin-bottom:12px; padding:10px;" onclick="addWizardHabitRow()">+ Agregar otro hábito</button>
+                <button class="btn-modal" onclick="saveWizardConfiguration()">¡Guardar y Comenzar! ✨</button>
             </div>
 
         </div>
     </div>
 
     <script>
-        // ESTADO GLOBAL
-        let appData = {
-            target: 15.44,
-            ahorro: 9.44,
-            comida: 3.00,
-            gastos: 3.00,
-            amountToday: 0,
-            habits: [
-                { id: 1, title: 'Salida 1', time: '06:00 AM - 08:30 AM', icon: '🚗', done: false },
-                { id: 2, title: 'Cocinar / Preparación', time: '08:30 AM - 10:30 AM', icon: '🍳', done: false },
-                { id: 3, title: 'Salida 2', time: '10:30 AM - 01:00 PM', icon: '🚗', done: false }
-            ]
+        let db = {
+            config: {
+                target: 15.44,
+                ahorro: 9.44,
+                comida: 3.00,
+                gastos: 3.00,
+                habitsTemplate: [
+                    { title: 'Salida 1', time: '06:00 - 08:30', icon: '🚗' },
+                    { title: 'Preparación de Comida', time: '08:30 - 10:30', icon: '🍳' },
+                    { title: 'Salida 2', time: '10:30 - 13:00', icon: '🚗' }
+                ]
+            },
+            days: {} // Formato: "YYYY-MM-DD": { amount: 0, habits: [true, false, true] }
         };
 
-        // CARGA INICIAL
+        let currentDateStr = getFormattedDate(0);
+
+        function getFormattedDate(offsetDays = 0) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            return d.toISOString().split('T')[0];
+        }
+
         window.onload = function() {
-            const saved = localStorage.getItem('mi_rutina_data');
+            const saved = localStorage.getItem('mi_rutina_v2_db');
             if (saved) {
-                appData = JSON.parse(saved);
+                db = JSON.parse(saved);
             } else {
-                // Abrir wizard si es primera vez
-                document.getElementById('wizardModal').classList.remove('hidden');
-                renderWizardHabits();
+                openWizard();
             }
-            applyConfig();
-            updateCalculations();
-            renderChecklist();
-            initCharts();
+            initDateSelector();
+            loadActiveDayData();
+            renderHeatmaps();
         };
 
         function switchTab(tab) {
@@ -552,29 +637,73 @@
                 document.querySelectorAll('.tab-btn')[1].classList.add('active');
                 document.getElementById('view-today').classList.add('hidden');
                 document.getElementById('view-stats').classList.remove('hidden');
+                renderHeatmaps();
             }
         }
 
-        function updateCalculations() {
-            const inputVal = parseFloat(document.getElementById('dailyAmount').value) || 0;
-            appData.amountToday = inputVal;
-
-            const target = appData.target;
-            const pct = Math.min(100, Math.round((inputVal / target) * 100));
+        // SELECTOR DE FECHAS (Día actual + últimos 2 días hábiles)
+        function initDateSelector() {
+            const select = document.getElementById('selectedDateSelect');
+            select.innerHTML = '';
             
+            for(let i = 0; i <= 2; i++) {
+                const dateStr = getFormattedDate(-i);
+                const opt = document.createElement('option');
+                opt.value = dateStr;
+                opt.innerText = i === 0 ? `Hoy (${dateStr})` : `Hace ${i} día(s) (${dateStr})`;
+                select.appendChild(opt);
+            }
+            select.value = currentDateStr;
+        }
+
+        function changeActiveDate(dateStr) {
+            currentDateStr = dateStr;
+            loadActiveDayData();
+        }
+
+        function ensureDayRecord(dateStr) {
+            if(!db.days[dateStr]) {
+                db.days[dateStr] = {
+                    amount: 0,
+                    habits: db.config.habitsTemplate.map(() => false)
+                };
+            }
+        }
+
+        function loadActiveDayData() {
+            ensureDayRecord(currentDateStr);
+            const dayData = db.days[currentDateStr];
+
+            document.getElementById('dailyAmount').value = dayData.amount || '';
+            applyGlobalConfigUI();
+            updateDailyFinance();
+            renderChecklist();
+        }
+
+        function applyGlobalConfigUI() {
+            document.getElementById('targetText').innerText = '$' + db.config.target.toFixed(2);
+            document.getElementById('remainingText').innerText = '$' + db.config.target.toFixed(2);
+        }
+
+        function updateDailyFinance() {
+            ensureDayRecord(currentDateStr);
+            const val = parseFloat(document.getElementById('dailyAmount').value) || 0;
+            db.days[currentDateStr].amount = val;
+
+            const target = db.config.target;
+            const pct = Math.min(100, Math.round((val / target) * 100));
+
             document.getElementById('progressBar').style.width = pct + '%';
             document.getElementById('percentText').innerText = pct + '%';
-            
-            const remaining = Math.max(0, target - inputVal);
+
+            const remaining = Math.max(0, target - val);
             document.getElementById('remainingText').innerText = '$' + remaining.toFixed(2);
 
-            // Desglose proporcional
-            const ratio = target > 0 ? Math.min(1, inputVal / target) : 0;
-            document.getElementById('valAhorro').innerText = '$' + (appData.ahorro * ratio).toFixed(2);
-            document.getElementById('valComida').innerText = '$' + (appData.comida * ratio).toFixed(2);
-            document.getElementById('valGastos').innerText = '$' + (appData.gastos * ratio).toFixed(2);
+            const ratio = target > 0 ? Math.min(1, val / target) : 0;
+            document.getElementById('valAhorro').innerText = '$' + (db.config.ahorro * ratio).toFixed(2);
+            document.getElementById('valComida').innerText = '$' + (db.config.comida * ratio).toFixed(2);
+            document.getElementById('valGastos').innerText = '$' + (db.config.gastos * ratio).toFixed(2);
 
-            // Badge status
             const badge = document.getElementById('statusBadge');
             if(pct >= 100) {
                 badge.innerText = 'Meta Lograda 🎉';
@@ -584,157 +713,172 @@
                 badge.className = 'badge badge-orange';
             }
 
-            saveState();
+            saveDB();
         }
 
         function renderChecklist() {
+            ensureDayRecord(currentDateStr);
             const container = document.getElementById('checklistContainer');
             container.innerHTML = '';
+            
+            const dayHabits = db.days[currentDateStr].habits;
             let completed = 0;
 
-            appData.habits.forEach((h, index) => {
-                if(h.done) completed++;
-                const item = document.createElement('div');
-                item.className = `checklist-item ${h.done ? 'done' : ''}`;
-                item.innerHTML = `
+            db.config.habitsTemplate.forEach((h, idx) => {
+                const isDone = dayHabits[idx] || false;
+                if(isDone) completed++;
+
+                const div = document.createElement('div');
+                div.className = `checklist-item ${isDone ? 'done' : ''}`;
+                div.innerHTML = `
                     <div class="task-info">
-                        <span class="task-icon">${h.icon || '📌'}</span>
+                        <span style="font-size:1.2rem;">${h.icon || '📌'}</span>
                         <div>
                             <div class="task-title">${h.title}</div>
-                            <div class="task-time">${h.time || ''}</div>
+                            <div class="task-time">⏰ ${h.time}</div>
                         </div>
                     </div>
-                    <div class="custom-checkbox" onclick="toggleHabit(${index})">
-                        ${h.done ? '✓' : ''}
+                    <div class="custom-checkbox" onclick="toggleHabit(${idx})">
+                        ${isDone ? '✓' : ''}
                     </div>
                 `;
-                container.appendChild(item);
+                container.appendChild(div);
             });
 
-            document.getElementById('habitsCount').innerText = `${completed}/${appData.habits.length} completados`;
+            document.getElementById('habitsCount').innerText = `${completed}/${db.config.habitsTemplate.length} completados`;
         }
 
-        function toggleHabit(index) {
-            appData.habits[index].done = !appData.habits[index].done;
+        function toggleHabit(idx) {
+            ensureDayRecord(currentDateStr);
+            db.days[currentDateStr].habits[idx] = !db.days[currentDateStr].habits[idx];
             renderChecklist();
-            saveState();
-            if(window.habitsChartObj) updateCharts();
+            saveDB();
         }
 
-        function applyConfig() {
-            document.getElementById('targetText').innerText = '$' + appData.target.toFixed(2);
-            document.getElementById('remainingText').innerText = '$' + appData.target.toFixed(2);
-            document.getElementById('lblAhorro').innerText = '$' + appData.ahorro.toFixed(2);
-            document.getElementById('lblComida').innerText = '$' + appData.comida.toFixed(2);
-            document.getElementById('lblGastos').innerText = '$' + appData.gastos.toFixed(2);
+        function finishCurrentDay() {
+            alert('¡Día guardado y cerrado con éxito! Puedes editarlo en cualquier momento dentro del margen de 2 días hábiles.');
+            switchTab('stats');
         }
 
-        // WIZARD LOGIC
-        document.getElementById('openSettingsBtn').onclick = function() {
+        // ESTADÍSTICAS / MES COMPLETO TIPO CALENDARIO
+        function renderHeatmaps() {
+            const savingsBox = document.getElementById('savingsHeatmap');
+            const habitsBox = document.getElementById('habitsHeatmap');
+            savingsBox.innerHTML = '';
+            habitsBox.innerHTML = '';
+
+            // Generar los últimos 28 días (mes actual aproximado)
+            let savingsSuccessCount = 0;
+            let habitsSuccessCount = 0;
+            let totalDaysChecked = 0;
+
+            for(let i = 27; i >= 0; i--) {
+                const dateStr = getFormattedDate(-i);
+                const dayData = db.days[dateStr];
+
+                // Celda de ahorros
+                let sClass = 'heatmap-cell';
+                if(dayData) {
+                    totalDaysChecked++;
+                    const ratio = dayData.amount / db.config.target;
+                    if(ratio >= 1) { sClass += ' success'; savingsSuccessCount++; }
+                    else if(ratio >= 0.5) { sClass += ' partial'; }
+                    else { sClass += ' fail'; }
+                }
+                const sCell = document.createElement('div');
+                sCell.className = sClass;
+                sCell.innerHTML = `<div>Día ${28-i}</div><div style="font-weight:700;">$${dayData ? dayData.amount.toFixed(0) : 0}</div>`;
+                savingsBox.appendChild(sCell);
+
+                // Celda de hábitos
+                let hClass = 'heatmap-cell';
+                if(dayData && db.config.habitsTemplate.length > 0) {
+                    const doneCount = dayData.habits.filter(Boolean).length;
+                    const hRatio = doneCount / db.config.habitsTemplate.length;
+                    if(hRatio >= 1) { hClass += ' success'; habitsSuccessCount++; }
+                    else if(hRatio >= 0.5) { hClass += ' partial'; }
+                    else { hClass += ' fail'; }
+                }
+                const hCell = document.createElement('div');
+                hCell.className = hClass;
+                hCell.innerHTML = `<div>Día ${28-i}</div><div style="font-weight:700;">${dayData ? dayData.habits.filter(Boolean).length : 0}/${db.config.habitsTemplate.length}</div>`;
+                habitsBox.appendChild(hCell);
+            }
+
+            if(totalDaysChecked > 0) {
+                document.getElementById('monthSavingsSummary').innerText = Math.round((savingsSuccessCount / totalDaysChecked) * 100) + '% Éxito';
+                document.getElementById('monthHabitsSummary').innerText = Math.round((habitsSuccessCount / totalDaysChecked) * 100) + '% Éxito';
+            }
+        }
+
+        // WIZARD / CONFIGURACIÓN INICIAL
+        function openWizard() {
+            document.getElementById('setupTarget').value = db.config.target;
+            document.getElementById('setupAhorro').value = db.config.ahorro;
+            document.getElementById('setupComida').value = db.config.comida;
+            document.getElementById('setupGastos').value = db.config.gastos;
+
+            renderWizardHabitsBuilder();
             document.getElementById('wizardModal').classList.remove('hidden');
-            renderWizardHabits();
-        };
-
-        function nextStep(step) {
-            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
-            document.getElementById('step' + step).classList.add('active');
         }
 
-        function renderWizardHabits() {
-            const container = document.getElementById('wizardHabitsList');
+        function wizardNext(step) {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('wStep' + step).classList.add('active');
+        }
+
+        function renderWizardHabitsBuilder() {
+            const container = document.getElementById('wizardHabitsBuilder');
             container.innerHTML = '';
-            appData.habits.forEach((h, i) => {
-                container.appendChild(createWizardHabitRow(h.title, h.time, h.icon, i));
+            db.config.habitsTemplate.forEach(h => {
+                container.appendChild(createHabitRowElement(h.title, h.time, h.icon));
             });
         }
 
-        function createWizardHabitRow(title='', time='', icon='📌', index=null) {
+        function createHabitRowElement(title='', time='', icon='📌') {
             const row = document.createElement('div');
-            row.className = 'habit-row-input';
+            row.className = 'habit-builder-row';
             row.innerHTML = `
-                <input type="text" placeholder="📌" value="${icon}" style="width: 40px; text-align:center;" class="w-icon">
-                <input type="text" placeholder="Actividad" value="${title}" style="flex:2;" class="w-title">
-                <input type="text" placeholder="Hora" value="${time}" style="flex:1;" class="w-time">
+                <input type="text" value="${icon}" style="width:45px; text-align:center;" class="hb-icon">
+                <input type="text" value="${title}" placeholder="Actividad" style="flex:2;" class="hb-title">
+                <input type="text" value="${time}" placeholder="Ej: 08:00 - 09:30" style="flex:1.5;" class="hb-time">
             `;
             return row;
         }
 
         function addWizardHabitRow() {
-            const container = document.getElementById('wizardHabitsList');
-            container.appendChild(createWizardHabitRow());
+            document.getElementById('wizardHabitsBuilder').appendChild(createHabitRowElement());
         }
 
-        function saveWizardData() {
-            appData.target = parseFloat(document.getElementById('wMeta').value) || 15.44;
-            appData.ahorro = parseFloat(document.getElementById('wAhorro').value) || 9.44;
-            appData.comida = parseFloat(document.getElementById('wComida').value) || 3.00;
-            appData.gastos = parseFloat(document.getElementById('wGastos').value) || 3.00;
+        function saveWizardConfiguration() {
+            db.config.target = parseFloat(document.getElementById('setupTarget').value) || 15.44;
+            db.config.ahorro = parseFloat(document.getElementById('setupAhorro').value) || 9.44;
+            db.config.comida = parseFloat(document.getElementById('setupComida').value) || 3.00;
+            db.config.gastos = parseFloat(document.getElementById('setupGastos').value) || 3.00;
 
-            const rows = document.querySelectorAll('#wizardHabitsList .habit-row-input');
+            const rows = document.querySelectorAll('.habit-builder-row');
             const newHabits = [];
-            rows.forEach((r, idx) => {
-                const title = r.querySelector('.w-title').value;
+            rows.forEach(r => {
+                const title = r.querySelector('.hb-title').value;
                 if(title.trim() !== '') {
                     newHabits.push({
-                        id: idx + 1,
                         title: title,
-                        time: r.querySelector('.w-time').value,
-                        icon: r.querySelector('.w-icon').value || '📌',
-                        done: false
+                        time: r.querySelector('.hb-time').value || '00:00',
+                        icon: r.querySelector('.hb-icon').value || '📌'
                     });
                 }
             });
 
-            if(newHabits.length > 0) appData.habits = newHabits;
+            if(newHabits.length > 0) db.config.habitsTemplate = newHabits;
 
-            applyConfig();
-            renderChecklist();
-            updateCalculations();
-            saveState();
-
+            saveDB();
             document.getElementById('wizardModal').classList.add('hidden');
-            nextStep(1);
+            wizardNext(1);
+            loadActiveDayData();
         }
 
-        function saveState() {
-            localStorage.setItem('mi_rutina_data', JSON.stringify(appData));
-        }
-
-        // CHARTS
-        function initCharts() {
-            const ctx1 = document.getElementById('savingsChart').getContext('2d');
-            window.savingsChartObj = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-                    datasets: [{
-                        label: 'Ahorro ($)',
-                        data: [5, 8, 9.44, 4, 0, 0, 0],
-                        backgroundColor: '#2ea043'
-                    }]
-                },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-
-            const ctx2 = document.getElementById('habitsChart').getContext('2d');
-            window.habitsChartObj = new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-                    datasets: [{
-                        label: 'Cumplimiento (%)',
-                        data: [80, 100, 60, 100, 0, 0, 0],
-                        borderColor: '#f59e0b',
-                        tension: 0.3
-                    }]
-                },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-        }
-
-        function updateCharts() {
-            // Actualización simple
-            window.habitsChartObj.update();
+        function saveDB() {
+            localStorage.setItem('mi_rutina_v2_db', JSON.stringify(db));
         }
     </script>
 </body>
