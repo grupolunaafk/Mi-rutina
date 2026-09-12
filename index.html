@@ -82,9 +82,9 @@
             background: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-main);
-            padding: 6px 10px;
+            padding: 8px 10px;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 1rem;
             cursor: pointer;
         }
 
@@ -258,6 +258,15 @@
         .breakdown-label {
             font-size: 0.7rem;
             color: var(--text-sub);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .breakdown-subtext {
+            font-size: 0.6rem;
+            color: var(--accent-orange-bright);
+            margin-top: 2px;
         }
 
         .breakdown-val {
@@ -320,7 +329,6 @@
             color: white;
         }
 
-        /* BOTONES FIN DE DÍA */
         .btn-action-main {
             width: 100%;
             padding: 12px;
@@ -333,7 +341,7 @@
             color: white;
         }
 
-        /* ESTADÍSTICAS / CALENDARIO TIPO VELA-CALOR */
+        /* CALENDARIO MENSUAL / HEATMAP */
         .heatmap-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -419,6 +427,14 @@
             outline: none;
         }
 
+        .cat-config-box {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
         .habit-builder-row {
             display: flex;
             gap: 6px;
@@ -426,7 +442,7 @@
             align-items: center;
         }
 
-        .habit-builder-row input, .habit-builder-row select {
+        .habit-builder-row input {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             color: var(--text-main);
@@ -452,7 +468,7 @@
             <span class="brand-title">Mi Rutina</span>
         </div>
         <div class="header-actions">
-            <button class="btn-icon-top" onclick="openWizard()">⚙️ Configurar</button>
+            <button class="btn-icon-top" onclick="openWizard()">⚙️</button>
         </div>
     </header>
 
@@ -463,17 +479,14 @@
             <button class="tab-btn" onclick="switchTab('stats')">📊 Mes y Rendimiento</button>
         </div>
 
-        <!-- SELECTOR DE DÍAS RETROACTIVOS (2 días hábiles) -->
+        <!-- SELECTOR DE DÍAS RETROACTIVOS -->
         <div class="day-selector-bar">
             <span>Editando fecha:</span>
-            <select id="selectedDateSelect" onchange="changeActiveDate(this.value)">
-                <!-- Dinámico -->
-            </select>
+            <select id="selectedDateSelect" onchange="changeActiveDate(this.value)"></select>
         </div>
 
-        <!-- VISTA HOY / DÍA SELECCIONADO -->
+        <!-- VISTA DÍA ACTUAL -->
         <div id="view-today">
-            <!-- FINANZAS -->
             <div class="card">
                 <div class="card-header">
                     <span class="card-title">💳 Ingresos y Metas</span>
@@ -481,7 +494,7 @@
                 </div>
 
                 <div class="input-group">
-                    <span class="input-label" id="targetReasonLabel">Monto Generado Hoy ($)</span>
+                    <span class="input-label">Monto Generado Hoy ($)</span>
                     <div class="amount-input-wrapper">
                         <span class="currency-symbol">$</span>
                         <input type="number" id="dailyAmount" class="amount-input" placeholder="0.00" step="0.01" oninput="updateDailyFinance()">
@@ -489,7 +502,7 @@
                 </div>
 
                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-sub);">
-                    <span>Meta Financiera (<span id="targetText">$15.44</span>)</span>
+                    <span>Meta Financiera Total (<span id="targetText">$3.00</span>)</span>
                     <span id="percentText">0%</span>
                 </div>
                 <div class="progress-bar-bg">
@@ -498,27 +511,13 @@
 
                 <div style="font-size: 0.85rem; display: flex; justify-content: space-between; margin-top: 8px;">
                     <span style="color: var(--text-sub);">Faltante para meta:</span>
-                    <span style="font-weight: 700; color: var(--accent-orange-bright);" id="remainingText">$15.44</span>
+                    <span style="font-weight: 700; color: var(--accent-orange-bright);" id="remainingText">$3.00</span>
                 </div>
 
-                <!-- DESGLOSE -->
-                <div class="breakdown-grid">
-                    <div class="breakdown-item">
-                        <div class="breakdown-label">Ahorro</div>
-                        <div class="breakdown-val" id="valAhorro">$0.00</div>
-                    </div>
-                    <div class="breakdown-item">
-                        <div class="breakdown-label">Comida</div>
-                        <div class="breakdown-val" id="valComida">$0.00</div>
-                    </div>
-                    <div class="breakdown-item">
-                        <div class="breakdown-label">Gastos</div>
-                        <div class="breakdown-val" id="valGastos">$0.00</div>
-                    </div>
-                </div>
+                <!-- DESGLOSE DINÁMICO DE CLASIFICACIONES -->
+                <div class="breakdown-grid" id="breakdownGridContainer"></div>
             </div>
 
-            <!-- HÁBITOS -->
             <div class="card">
                 <div class="card-header">
                     <span class="card-title">📋 Rutina y Hábitos</span>
@@ -530,19 +529,16 @@
             </div>
         </div>
 
-        <!-- VISTA ESTADÍSTICAS Y MES COMPLETO -->
+        <!-- VISTA ESTADÍSTICAS -->
         <div id="view-stats" class="hidden">
-            <!-- AHORROS - CALENDARIO MENSUAL -->
             <div class="card">
                 <div class="card-header">
                     <span class="card-title">💰 Rendimiento de Ahorros (Mes)</span>
                     <span class="badge badge-green" id="monthSavingsSummary">0% Éxito</span>
                 </div>
-                <p style="font-size: 0.75rem; color: var(--text-sub); margin-bottom: 8px;">Verde: Meta cumplida | Naranja: Parcial | Rojo: Sin completar</p>
                 <div class="heatmap-grid" id="savingsHeatmap"></div>
             </div>
 
-            <!-- HÁBITOS - CALENDARIO MENSUAL -->
             <div class="card">
                 <div class="card-header">
                     <span class="card-title">📋 Consistencia de Hábitos (Mes)</span>
@@ -553,39 +549,54 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIGURACIÓN / WIZARD INICIAL -->
+    <!-- MODAL DE CONFIGURACIÓN / WIZARD -->
     <div class="modal-overlay hidden" id="wizardModal">
         <div class="modal-card">
             
-            <!-- PASO 1: METAS Y CLASIFICACIÓN -->
+            <!-- PASO 1: METAS Y CLASIFICACIONES AMPLIAS CON SUB-DESTINOS OPCIONALES -->
             <div class="wizard-step active" id="wStep1">
-                <h3 style="margin-bottom: 8px; color: var(--accent-green-bright);">1. Metas y Clasificación</h3>
-                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Define tus montos y para qué serán destinados.</p>
+                <h3 style="margin-bottom: 8px; color: var(--accent-green-bright);">1. Metas y Clasificaciones</h3>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Establece tus categorías amplias y montos (Ej. en $1.00).</p>
                 
                 <label class="input-label">Meta Diaria Total ($)</label>
-                <input type="number" id="setupTarget" class="wizard-input" value="15.44">
+                <input type="number" id="setupTarget" class="wizard-input" value="3.00" step="0.01">
 
-                <label class="input-label">Clasificación 1: Ahorro Destinado ($)</label>
-                <input type="number" id="setupAhorro" class="wizard-input" value="9.44">
+                <!-- Categoría 1 -->
+                <div class="cat-config-box">
+                    <label class="input-label">Clasificación 1 (Amplia)</label>
+                    <input type="text" id="cat1Name" class="wizard-input" value="Ahorro / Inversión principal" style="margin-bottom:6px;">
+                    <input type="number" id="cat1Amount" class="wizard-input" value="1.00" step="0.01" style="margin-bottom:6px;">
+                    <input type="text" id="cat1Sub" class="wizard-input" placeholder="Sub-destino opcional (Ej: Fondo de emergencia)" style="margin-bottom:0;">
+                </div>
 
-                <label class="input-label">Clasificación 2: Comida Destinada ($)</label>
-                <input type="number" id="setupComida" class="wizard-input" value="3.00">
+                <!-- Categoría 2 -->
+                <div class="cat-config-box">
+                    <label class="input-label">Clasificación 2 (Amplia)</label>
+                    <input type="text" id="cat2Name" class="wizard-input" value="Gastos fijos" style="margin-bottom:6px;">
+                    <input type="number" id="cat2Amount" class="wizard-input" value="1.00" step="0.01" style="margin-bottom:6px;">
+                    <input type="text" id="cat2Sub" class="wizard-input" placeholder="Sub-destino opcional (Ej: Comida, servicios)" style="margin-bottom:0;">
+                </div>
 
-                <label class="input-label">Clasificación 3: Gastos/Datos Destinados ($)</label>
-                <input type="number" id="setupGastos" class="wizard-input" value="3.00">
+                <!-- Categoría 3 -->
+                <div class="cat-config-box">
+                    <label class="input-label">Clasificación 3 (Amplia)</label>
+                    <input type="text" id="cat3Name" class="wizard-input" value="Gastos operativos" style="margin-bottom:6px;">
+                    <input type="number" id="cat3Amount" class="wizard-input" value="1.00" step="0.01" style="margin-bottom:6px;">
+                    <input type="text" id="cat3Sub" class="wizard-input" placeholder="Sub-destino opcional (Ej: Transporte, datos)" style="margin-bottom:0;">
+                </div>
 
                 <button class="btn-modal" onclick="wizardNext(2)">Siguiente: Hábitos ➡️</button>
             </div>
 
-            <!-- PASO 2: HÁBITOS Y HORARIOS FÁCILES -->
+            <!-- PASO 2: HÁBITOS -->
             <div class="wizard-step" id="wStep2">
                 <h3 style="margin-bottom: 8px; color: var(--accent-green-bright);">2. Tus Hábitos Diarios</h3>
                 <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Configura tus actividades con horas sencillas.</p>
 
                 <div id="wizardHabitsBuilder"></div>
 
-                <button class="btn-icon-top" style="width:100%; margin-bottom:12px; padding:10px;" onclick="addWizardHabitRow()">+ Agregar otro hábito</button>
-                <button class="btn-modal" onclick="saveWizardConfiguration()">¡Guardar y Comenzar! ✨</button>
+                <button class="btn-icon-top" style="width:100%; margin-bottom:12px; padding:10px;" onclick="addWizardHabitRow()">+ Agregar hábito</button>
+                <button class="btn-modal" onclick="saveWizardConfiguration()">Comenzar ➡️</button>
             </div>
 
         </div>
@@ -594,17 +605,19 @@
     <script>
         let db = {
             config: {
-                target: 15.44,
-                ahorro: 9.44,
-                comida: 3.00,
-                gastos: 3.00,
+                target: 3.00,
+                categories: [
+                    { name: 'Ahorro / Inversión', amount: 1.00, sub: 'Fondo' },
+                    { name: 'Gastos fijos', amount: 1.00, sub: 'Comida' },
+                    { name: 'Gastos operativos', amount: 1.00, sub: 'Datos/Movilidad' }
+                ],
                 habitsTemplate: [
                     { title: 'Salida 1', time: '06:00 - 08:30', icon: '🚗' },
                     { title: 'Preparación de Comida', time: '08:30 - 10:30', icon: '🍳' },
                     { title: 'Salida 2', time: '10:30 - 13:00', icon: '🚗' }
                 ]
             },
-            days: {} // Formato: "YYYY-MM-DD": { amount: 0, habits: [true, false, true] }
+            days: {}
         };
 
         let currentDateStr = getFormattedDate(0);
@@ -616,7 +629,7 @@
         }
 
         window.onload = function() {
-            const saved = localStorage.getItem('mi_rutina_v2_db');
+            const saved = localStorage.getItem('mi_rutina_v3_db');
             if (saved) {
                 db = JSON.parse(saved);
             } else {
@@ -641,11 +654,9 @@
             }
         }
 
-        // SELECTOR DE FECHAS (Día actual + últimos 2 días hábiles)
         function initDateSelector() {
             const select = document.getElementById('selectedDateSelect');
             select.innerHTML = '';
-            
             for(let i = 0; i <= 2; i++) {
                 const dateStr = getFormattedDate(-i);
                 const opt = document.createElement('option');
@@ -673,7 +684,6 @@
         function loadActiveDayData() {
             ensureDayRecord(currentDateStr);
             const dayData = db.days[currentDateStr];
-
             document.getElementById('dailyAmount').value = dayData.amount || '';
             applyGlobalConfigUI();
             updateDailyFinance();
@@ -683,6 +693,20 @@
         function applyGlobalConfigUI() {
             document.getElementById('targetText').innerText = '$' + db.config.target.toFixed(2);
             document.getElementById('remainingText').innerText = '$' + db.config.target.toFixed(2);
+
+            // Renderizar desglose dinámico
+            const grid = document.getElementById('breakdownGridContainer');
+            grid.innerHTML = '';
+            db.config.categories.forEach((cat, idx) => {
+                const item = document.createElement('div');
+                item.className = 'breakdown-item';
+                item.innerHTML = `
+                    <div class="breakdown-label">${cat.name}</div>
+                    ${cat.sub ? `<div class="breakdown-subtext">(${cat.sub})</div>` : ''}
+                    <div class="breakdown-val" id="valCat${idx}">$0.00</div>
+                `;
+                grid.appendChild(item);
+            });
         }
 
         function updateDailyFinance() {
@@ -700,9 +724,12 @@
             document.getElementById('remainingText').innerText = '$' + remaining.toFixed(2);
 
             const ratio = target > 0 ? Math.min(1, val / target) : 0;
-            document.getElementById('valAhorro').innerText = '$' + (db.config.ahorro * ratio).toFixed(2);
-            document.getElementById('valComida').innerText = '$' + (db.config.comida * ratio).toFixed(2);
-            document.getElementById('valGastos').innerText = '$' + (db.config.gastos * ratio).toFixed(2);
+            db.config.categories.forEach((cat, idx) => {
+                const el = document.getElementById(`valCat${idx}`);
+                if(el) {
+                    el.innerText = '$' + (cat.amount * ratio).toFixed(2);
+                }
+            });
 
             const badge = document.getElementById('statusBadge');
             if(pct >= 100) {
@@ -756,18 +783,16 @@
         }
 
         function finishCurrentDay() {
-            alert('¡Día guardado y cerrado con éxito! Puedes editarlo en cualquier momento dentro del margen de 2 días hábiles.');
+            alert('¡Día guardado y cerrado con éxito! Puedes revisarlo o modificarlo dentro de los últimos 2 días hábiles.');
             switchTab('stats');
         }
 
-        // ESTADÍSTICAS / MES COMPLETO TIPO CALENDARIO
         function renderHeatmaps() {
             const savingsBox = document.getElementById('savingsHeatmap');
             const habitsBox = document.getElementById('habitsHeatmap');
             savingsBox.innerHTML = '';
             habitsBox.innerHTML = '';
 
-            // Generar los últimos 28 días (mes actual aproximado)
             let savingsSuccessCount = 0;
             let habitsSuccessCount = 0;
             let totalDaysChecked = 0;
@@ -776,7 +801,6 @@
                 const dateStr = getFormattedDate(-i);
                 const dayData = db.days[dateStr];
 
-                // Celda de ahorros
                 let sClass = 'heatmap-cell';
                 if(dayData) {
                     totalDaysChecked++;
@@ -790,7 +814,6 @@
                 sCell.innerHTML = `<div>Día ${28-i}</div><div style="font-weight:700;">$${dayData ? dayData.amount.toFixed(0) : 0}</div>`;
                 savingsBox.appendChild(sCell);
 
-                // Celda de hábitos
                 let hClass = 'heatmap-cell';
                 if(dayData && db.config.habitsTemplate.length > 0) {
                     const doneCount = dayData.habits.filter(Boolean).length;
@@ -811,12 +834,23 @@
             }
         }
 
-        // WIZARD / CONFIGURACIÓN INICIAL
         function openWizard() {
             document.getElementById('setupTarget').value = db.config.target;
-            document.getElementById('setupAhorro').value = db.config.ahorro;
-            document.getElementById('setupComida').value = db.config.comida;
-            document.getElementById('setupGastos').value = db.config.gastos;
+            if(db.config.categories[0]) {
+                document.getElementById('cat1Name').value = db.config.categories[0].name;
+                document.getElementById('cat1Amount').value = db.config.categories[0].amount;
+                document.getElementById('cat1Sub').value = db.config.categories[0].sub || '';
+            }
+            if(db.config.categories[1]) {
+                document.getElementById('cat2Name').value = db.config.categories[1].name;
+                document.getElementById('cat2Amount').value = db.config.categories[1].amount;
+                document.getElementById('cat2Sub').value = db.config.categories[1].sub || '';
+            }
+            if(db.config.categories[2]) {
+                document.getElementById('cat3Name').value = db.config.categories[2].name;
+                document.getElementById('cat3Amount').value = db.config.categories[2].amount;
+                document.getElementById('cat3Sub').value = db.config.categories[2].sub || '';
+            }
 
             renderWizardHabitsBuilder();
             document.getElementById('wizardModal').classList.remove('hidden');
@@ -851,10 +885,25 @@
         }
 
         function saveWizardConfiguration() {
-            db.config.target = parseFloat(document.getElementById('setupTarget').value) || 15.44;
-            db.config.ahorro = parseFloat(document.getElementById('setupAhorro').value) || 9.44;
-            db.config.comida = parseFloat(document.getElementById('setupComida').value) || 3.00;
-            db.config.gastos = parseFloat(document.getElementById('setupGastos').value) || 3.00;
+            db.config.target = parseFloat(document.getElementById('setupTarget').value) || 3.00;
+            
+            db.config.categories = [
+                {
+                    name: document.getElementById('cat1Name').value || 'Categoría 1',
+                    amount: parseFloat(document.getElementById('cat1Amount').value) || 1.00,
+                    sub: document.getElementById('cat1Sub').value
+                },
+                {
+                    name: document.getElementById('cat2Name').value || 'Categoría 2',
+                    amount: parseFloat(document.getElementById('cat2Amount').value) || 1.00,
+                    sub: document.getElementById('cat2Sub').value
+                },
+                {
+                    name: document.getElementById('cat3Name').value || 'Categoría 3',
+                    amount: parseFloat(document.getElementById('cat3Amount').value) || 1.00,
+                    sub: document.getElementById('cat3Sub').value
+                }
+            ];
 
             const rows = document.querySelectorAll('.habit-builder-row');
             const newHabits = [];
@@ -875,10 +924,11 @@
             document.getElementById('wizardModal').classList.add('hidden');
             wizardNext(1);
             loadActiveDayData();
+            renderHeatmaps();
         }
 
         function saveDB() {
-            localStorage.setItem('mi_rutina_v2_db', JSON.stringify(db));
+            localStorage.setItem('mi_rutina_v3_db', JSON.stringify(db));
         }
     </script>
 </body>
