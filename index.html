@@ -40,7 +40,6 @@
             padding-bottom: 40px;
         }
 
-        /* HEADER */
         .app-header {
             background-color: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
@@ -72,12 +71,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
         .btn-icon-top {
             background: transparent;
             border: 1px solid var(--border-color);
@@ -94,7 +87,6 @@
             padding: 16px;
         }
 
-        /* TABS */
         .nav-tabs {
             display: flex;
             background: var(--bg-card);
@@ -121,7 +113,6 @@
             color: #ffffff;
         }
 
-        /* CARDS */
         .card {
             background-color: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -164,7 +155,6 @@
             border: 1px solid var(--accent-green);
         }
 
-        /* SELECTOR DE DÍAS RETROACTIVOS */
         .day-selector-bar {
             display: flex;
             align-items: center;
@@ -186,7 +176,6 @@
             outline: none;
         }
 
-        /* INPUTS */
         .input-group {
             margin-bottom: 12px;
         }
@@ -224,6 +213,11 @@
             outline: none;
         }
 
+        .amount-input::placeholder {
+            color: var(--text-sub);
+            opacity: 0.4;
+        }
+
         .progress-bar-bg {
             background-color: var(--bg-primary);
             height: 8px;
@@ -242,7 +236,7 @@
 
         .breakdown-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
             margin-top: 12px;
         }
@@ -250,33 +244,41 @@
         .breakdown-item {
             background-color: var(--bg-primary);
             border: 1px solid var(--border-color);
-            padding: 10px 6px;
+            padding: 10px;
             border-radius: 8px;
-            text-align: center;
         }
 
         .breakdown-label {
-            font-size: 0.7rem;
-            color: var(--text-sub);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
         }
 
         .breakdown-subtext {
-            font-size: 0.6rem;
-            color: var(--accent-orange-bright);
-            margin-top: 2px;
+            font-size: 0.65rem;
+            color: var(--text-sub);
+            margin-bottom: 4px;
         }
 
-        .breakdown-val {
-            font-size: 0.9rem;
-            font-weight: 700;
+        .breakdown-input-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .breakdown-input-row input {
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             color: var(--accent-green-bright);
-            margin-top: 4px;
+            padding: 6px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            outline: none;
         }
 
-        /* CHECKLIST */
         .checklist-item {
             display: flex;
             align-items: center;
@@ -341,7 +343,6 @@
             color: white;
         }
 
-        /* CALENDARIO MENSUAL / HEATMAP */
         .heatmap-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -356,6 +357,7 @@
             padding: 8px 4px;
             text-align: center;
             font-size: 0.75rem;
+            cursor: pointer;
         }
 
         .heatmap-cell.success {
@@ -376,7 +378,6 @@
             color: var(--accent-red);
         }
 
-        /* MODAL WIZARD */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -427,6 +428,11 @@
             outline: none;
         }
 
+        .wizard-input::placeholder {
+            color: var(--text-sub);
+            opacity: 0.4;
+        }
+
         .cat-config-box {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
@@ -435,20 +441,41 @@
             margin-bottom: 10px;
         }
 
-        .habit-builder-row {
+        .sub-tag-row {
             display: flex;
             gap: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             align-items: center;
         }
 
-        .habit-builder-row input {
+        /* SELECTOR DE HORA GIRATORIO (WHEEL PICKER) */
+        .time-picker-container {
+            display: flex;
+            gap: 8px;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .time-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .time-spinner select {
+            background: var(--bg-secondary);
             color: var(--text-main);
-            padding: 8px;
+            border: 1px solid var(--border-color);
+            padding: 6px;
             border-radius: 6px;
+            font-size: 1rem;
             outline: none;
+            text-align: center;
         }
 
         .hidden { display: none !important; }
@@ -456,7 +483,6 @@
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="app-header">
         <div class="logo-container">
             <svg class="target-logo-svg" viewBox="0 0 100 100">
@@ -473,13 +499,11 @@
     </header>
 
     <div class="container">
-        <!-- NAVEGACIÓN -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('today')">📅 Día Actual</button>
             <button class="tab-btn" onclick="switchTab('stats')">📊 Mes y Rendimiento</button>
         </div>
 
-        <!-- SELECTOR DE DÍAS RETROACTIVOS -->
         <div class="day-selector-bar">
             <span>Editando fecha:</span>
             <select id="selectedDateSelect" onchange="changeActiveDate(this.value)"></select>
@@ -497,12 +521,12 @@
                     <span class="input-label">Monto Generado Hoy ($)</span>
                     <div class="amount-input-wrapper">
                         <span class="currency-symbol">$</span>
-                        <input type="number" id="dailyAmount" class="amount-input" placeholder="0.00" step="0.01" oninput="updateDailyFinance()">
+                        <input type="number" id="dailyAmount" class="amount-input" placeholder="Ej: 10$" step="0.01" oninput="updateDailyFinance()">
                     </div>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-sub);">
-                    <span>Meta Financiera Total (<span id="targetText">$3.00</span>)</span>
+                    <span>Meta Financiera Total (<span id="targetText">$10.00</span>)</span>
                     <span id="percentText">0%</span>
                 </div>
                 <div class="progress-bar-bg">
@@ -511,10 +535,10 @@
 
                 <div style="font-size: 0.85rem; display: flex; justify-content: space-between; margin-top: 8px;">
                     <span style="color: var(--text-sub);">Faltante para meta:</span>
-                    <span style="font-weight: 700; color: var(--accent-orange-bright);" id="remainingText">$3.00</span>
+                    <span style="font-weight: 700; color: var(--accent-orange-bright);" id="remainingText">$10.00</span>
                 </div>
 
-                <!-- DESGLOSE DINÁMICO DE CLASIFICACIONES -->
+                <!-- DESGLOSE MANUAL POR CATEGORÍAS Y SUB-DESTINOS -->
                 <div class="breakdown-grid" id="breakdownGridContainer"></div>
             </div>
 
@@ -536,6 +560,7 @@
                     <span class="card-title">💰 Rendimiento de Ahorros (Mes)</span>
                     <span class="badge badge-green" id="monthSavingsSummary">0% Éxito</span>
                 </div>
+                <p style="font-size: 0.75rem; color: var(--text-sub); margin-bottom: 8px;">Toca cualquier día para abrirlo y editarlo:</p>
                 <div class="heatmap-grid" id="savingsHeatmap"></div>
             </div>
 
@@ -553,45 +578,21 @@
     <div class="modal-overlay hidden" id="wizardModal">
         <div class="modal-card">
             
-            <!-- PASO 1: METAS Y CLASIFICACIONES AMPLIAS CON SUB-DESTINOS OPCIONALES -->
             <div class="wizard-step active" id="wStep1">
-                <h3 style="margin-bottom: 8px; color: var(--accent-green-bright);">1. Metas y Clasificaciones</h3>
-                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Establece tus categorías amplias y montos (Ej. en $1.00).</p>
+                <h3 style="margin-bottom: 8px; color: var(--accent-green-bright);">1. Metas y Categorías</h3>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Define tu meta total y tus 4 categorías fijas con opciones específicas.</p>
                 
                 <label class="input-label">Meta Diaria Total ($)</label>
-                <input type="number" id="setupTarget" class="wizard-input" value="3.00" step="0.01">
+                <input type="number" id="setupTarget" class="wizard-input" placeholder="Ej: 10$" step="0.01">
 
-                <!-- Categoría 1 -->
-                <div class="cat-config-box">
-                    <label class="input-label">Clasificación 1 (Amplia)</label>
-                    <input type="text" id="cat1Name" class="wizard-input" value="Ahorro / Inversión principal" style="margin-bottom:6px;">
-                    <input type="number" id="cat1Amount" class="wizard-input" value="1.00" step="0.01" style="margin-bottom:6px;">
-                    <input type="text" id="cat1Sub" class="wizard-input" placeholder="Sub-destino opcional (Ej: Fondo de emergencia)" style="margin-bottom:0;">
-                </div>
-
-                <!-- Categoría 2 -->
-                <div class="cat-config-box">
-                    <label class="input-label">Clasificación 2 (Amplia)</label>
-                    <input type="text" id="cat2Name" class="wizard-input" value="Gastos fijos" style="margin-bottom:6px;">
-                    <input type="number" id="cat2Amount" class="wizard-input" value="1.00" step="0.01" style="margin-bottom:6px;">
-                    <input type="text" id="cat2Sub" class="wizard-input" placeholder="Sub-destino opcional (Ej: Comida, servicios)" style="margin-bottom:0;">
-                </div>
-
-                <!-- Categoría 3 -->
-                <div class="cat-config-box">
-                    <label class="input-label">Clasificación 3 (Amplia)</label>
-                    <input type="text" id="cat3Name" class="wizard-input" value="Gastos operativos" style="margin-bottom:6px;">
-                    <input type="number" id="cat3Amount" class="wizard-input" value="1.00" step="0.01" style="margin-bottom:6px;">
-                    <input type="text" id="cat3Sub" class="wizard-input" placeholder="Sub-destino opcional (Ej: Transporte, datos)" style="margin-bottom:0;">
-                </div>
+                <div id="categoriesSetupContainer"></div>
 
                 <button class="btn-modal" onclick="wizardNext(2)">Siguiente: Hábitos ➡️</button>
             </div>
 
-            <!-- PASO 2: HÁBITOS -->
             <div class="wizard-step" id="wStep2">
                 <h3 style="margin-bottom: 8px; color: var(--accent-green-bright);">2. Tus Hábitos Diarios</h3>
-                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Configura tus actividades con horas sencillas.</p>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Configura tus actividades seleccionando las horas fácilmente.</p>
 
                 <div id="wizardHabitsBuilder"></div>
 
@@ -603,18 +604,15 @@
     </div>
 
     <script>
+        const FIXED_CAT_NAMES = ['Ahorro / Inversión', 'Gastos fijos', 'Gastos operativos', 'Gastos innecesario'];
+
         let db = {
             config: {
-                target: 3.00,
-                categories: [
-                    { name: 'Ahorro / Inversión', amount: 1.00, sub: 'Fondo' },
-                    { name: 'Gastos fijos', amount: 1.00, sub: 'Comida' },
-                    { name: 'Gastos operativos', amount: 1.00, sub: 'Datos/Movilidad' }
-                ],
+                target: 10.00,
+                categories: FIXED_CAT_NAMES.map(name => ({ name, subs: [] })),
                 habitsTemplate: [
                     { title: 'Salida 1', time: '06:00 - 08:30', icon: '🚗' },
-                    { title: 'Preparación de Comida', time: '08:30 - 10:30', icon: '🍳' },
-                    { title: 'Salida 2', time: '10:30 - 13:00', icon: '🚗' }
+                    { title: 'Preparación de Comida', time: '08:30 - 10:30', icon: '🍳' }
                 ]
             },
             days: {}
@@ -629,9 +627,13 @@
         }
 
         window.onload = function() {
-            const saved = localStorage.getItem('mi_rutina_v3_db');
+            const saved = localStorage.getItem('mi_rutina_v4_db');
             if (saved) {
                 db = JSON.parse(saved);
+                // Asegurar compatibilidad de categorías fijas
+                if(!db.config.categories || db.config.categories.length !== 4) {
+                    db.config.categories = FIXED_CAT_NAMES.map(name => ({ name, subs: [] }));
+                }
             } else {
                 openWizard();
             }
@@ -657,11 +659,11 @@
         function initDateSelector() {
             const select = document.getElementById('selectedDateSelect');
             select.innerHTML = '';
-            for(let i = 0; i <= 2; i++) {
+            for(let i = 0; i <= 30; i++) {
                 const dateStr = getFormattedDate(-i);
                 const opt = document.createElement('option');
                 opt.value = dateStr;
-                opt.innerText = i === 0 ? `Hoy (${dateStr})` : `Hace ${i} día(s) (${dateStr})`;
+                opt.innerText = i === 0 ? `Hoy (${dateStr})` : `Día (${dateStr})`;
                 select.appendChild(opt);
             }
             select.value = currentDateStr;
@@ -670,12 +672,20 @@
         function changeActiveDate(dateStr) {
             currentDateStr = dateStr;
             loadActiveDayData();
+            switchTab('today');
         }
 
         function ensureDayRecord(dateStr) {
             if(!db.days[dateStr]) {
+                const subAllocations = {};
+                db.config.categories.forEach((cat, cIdx) => {
+                    cat.subs.forEach((sub, sIdx) => {
+                        subAllocations[`${cIdx}-${sIdx}`] = 0;
+                    });
+                });
                 db.days[dateStr] = {
                     amount: 0,
+                    subAllocations: subAllocations,
                     habits: db.config.habitsTemplate.map(() => false)
                 };
             }
@@ -683,6 +693,7 @@
 
         function loadActiveDayData() {
             ensureDayRecord(currentDateStr);
+            document.getElementById('selectedDateSelect').value = currentDateStr;
             const dayData = db.days[currentDateStr];
             document.getElementById('dailyAmount').value = dayData.amount || '';
             applyGlobalConfigUI();
@@ -694,19 +705,45 @@
             document.getElementById('targetText').innerText = '$' + db.config.target.toFixed(2);
             document.getElementById('remainingText').innerText = '$' + db.config.target.toFixed(2);
 
-            // Renderizar desglose dinámico
             const grid = document.getElementById('breakdownGridContainer');
             grid.innerHTML = '';
-            db.config.categories.forEach((cat, idx) => {
+            
+            db.config.categories.forEach((cat, cIdx) => {
                 const item = document.createElement('div');
                 item.className = 'breakdown-item';
+                
+                let subsHtml = '';
+                if(cat.subs && cat.subs.length > 0) {
+                    subsHtml = cat.subs.map((sub, sIdx) => `
+                        <div class="breakdown-subtext">• ${sub}:</div>
+                        <div class="breakdown-input-row" style="margin-bottom:4px;">
+                            <span style="color:var(--accent-green-bright)">$</span>
+                            <input type="number" class="sub-alloc-input" data-cat="${cIdx}" data-sub="${sIdx}" placeholder="Ej: 10$" step="0.01" value="${db.days[currentDateStr].subAllocations[`${cIdx}-${sIdx}`] || ''}" oninput="updateSubAllocation()">
+                        </div>
+                    `).join('');
+                } else {
+                    subsHtml = `<div class="breakdown-subtext" style="color:var(--text-sub);">Sin sub-destinos</div>`;
+                }
+
                 item.innerHTML = `
                     <div class="breakdown-label">${cat.name}</div>
-                    ${cat.sub ? `<div class="breakdown-subtext">(${cat.sub})</div>` : ''}
-                    <div class="breakdown-val" id="valCat${idx}">$0.00</div>
+                    ${subsHtml}
                 `;
                 grid.appendChild(item);
             });
+        }
+
+        function updateSubAllocation() {
+            ensureDayRecord(currentDateStr);
+            const inputs = document.querySelectorAll('.sub-alloc-input');
+            let totalAllocated = 0;
+            inputs.forEach(inp => {
+                const key = `${inp.dataset.cat}-${inp.dataset.sub}`;
+                const val = parseFloat(inp.value) || 0;
+                db.days[currentDateStr].subAllocations[key] = val;
+                totalAllocated += val;
+            });
+            saveDB();
         }
 
         function updateDailyFinance() {
@@ -722,14 +759,6 @@
 
             const remaining = Math.max(0, target - val);
             document.getElementById('remainingText').innerText = '$' + remaining.toFixed(2);
-
-            const ratio = target > 0 ? Math.min(1, val / target) : 0;
-            db.config.categories.forEach((cat, idx) => {
-                const el = document.getElementById(`valCat${idx}`);
-                if(el) {
-                    el.innerText = '$' + (cat.amount * ratio).toFixed(2);
-                }
-            });
 
             const badge = document.getElementById('statusBadge');
             if(pct >= 100) {
@@ -783,7 +812,7 @@
         }
 
         function finishCurrentDay() {
-            alert('¡Día guardado y cerrado con éxito! Puedes revisarlo o modificarlo dentro de los últimos 2 días hábiles.');
+            alert('¡Día guardado y cerrado con éxito!');
             switchTab('stats');
         }
 
@@ -812,6 +841,7 @@
                 const sCell = document.createElement('div');
                 sCell.className = sClass;
                 sCell.innerHTML = `<div>Día ${28-i}</div><div style="font-weight:700;">$${dayData ? dayData.amount.toFixed(0) : 0}</div>`;
+                sCell.onclick = () => { changeActiveDate(dateStr); };
                 savingsBox.appendChild(sCell);
 
                 let hClass = 'heatmap-cell';
@@ -825,6 +855,7 @@
                 const hCell = document.createElement('div');
                 hCell.className = hClass;
                 hCell.innerHTML = `<div>Día ${28-i}</div><div style="font-weight:700;">${dayData ? dayData.habits.filter(Boolean).length : 0}/${db.config.habitsTemplate.length}</div>`;
+                hCell.onclick = () => { changeActiveDate(dateStr); };
                 habitsBox.appendChild(hCell);
             }
 
@@ -836,24 +867,42 @@
 
         function openWizard() {
             document.getElementById('setupTarget').value = db.config.target;
-            if(db.config.categories[0]) {
-                document.getElementById('cat1Name').value = db.config.categories[0].name;
-                document.getElementById('cat1Amount').value = db.config.categories[0].amount;
-                document.getElementById('cat1Sub').value = db.config.categories[0].sub || '';
-            }
-            if(db.config.categories[1]) {
-                document.getElementById('cat2Name').value = db.config.categories[1].name;
-                document.getElementById('cat2Amount').value = db.config.categories[1].amount;
-                document.getElementById('cat2Sub').value = db.config.categories[1].sub || '';
-            }
-            if(db.config.categories[2]) {
-                document.getElementById('cat3Name').value = db.config.categories[2].name;
-                document.getElementById('cat3Amount').value = db.config.categories[2].amount;
-                document.getElementById('cat3Sub').value = db.config.categories[2].sub || '';
-            }
+            
+            const catContainer = document.getElementById('categoriesSetupContainer');
+            catContainer.innerHTML = '';
+            db.config.categories.forEach((cat, cIdx) => {
+                const box = document.createElement('div');
+                box.className = 'cat-config-box';
+                let subsHtml = cat.subs.map((sub, sIdx) => `
+                    <div class="sub-tag-row">
+                        <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" value="${sub}" placeholder="Nombre específico" style="margin:0; flex:1;">
+                        <button type="button" class="btn-icon-top" onclick="this.parentElement.remove()">❌</button>
+                    </div>
+                `).join('');
+
+                box.innerHTML = `
+                    <div style="font-weight:700; color:var(--accent-green-bright); margin-bottom:6px;">${cat.name}</div>
+                    <div class="subs-list-container" id="subList-${cIdx}">
+                        ${subsHtml}
+                    </div>
+                    <button type="button" class="btn-icon-top" style="width:100%; margin-top:4px; padding:6px;" onclick="addSubTagInput(${cIdx})">+ Agregar sub-destino específico</button>
+                `;
+                catContainer.appendChild(box);
+            });
 
             renderWizardHabitsBuilder();
             document.getElementById('wizardModal').classList.remove('hidden');
+        }
+
+        function addSubTagInput(cIdx) {
+            const container = document.getElementById(`subList-${cIdx}`);
+            const row = document.createElement('div');
+            row.className = 'sub-tag-row';
+            row.innerHTML = `
+                <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" placeholder="Nombre específico" style="margin:0; flex:1;">
+                <button type="button" class="btn-icon-top" onclick="this.parentElement.remove()">❌</button>
+            `;
+            container.appendChild(row);
         }
 
         function wizardNext(step) {
@@ -875,7 +924,8 @@
             row.innerHTML = `
                 <input type="text" value="${icon}" style="width:45px; text-align:center;" class="hb-icon">
                 <input type="text" value="${title}" placeholder="Actividad" style="flex:2;" class="hb-title">
-                <input type="text" value="${time}" placeholder="Ej: 08:00 - 09:30" style="flex:1.5;" class="hb-time">
+                <button type="button" class="btn-icon-top" onclick="openTimePickerModal(this)">⏰ Horas</button>
+                <input type="hidden" class="hb-time" value="${time || '06:00 - 08:30'}">
             `;
             return row;
         }
@@ -884,26 +934,86 @@
             document.getElementById('wizardHabitsBuilder').appendChild(createHabitRowElement());
         }
 
-        function saveWizardConfiguration() {
-            db.config.target = parseFloat(document.getElementById('setupTarget').value) || 3.00;
+        // SELECTOR DE HORA GIRATORIO (WHEEL PICKER MODAL)
+        function openTimePickerModal(btnElement) {
+            const hiddenInput = btnElement.parentElement.querySelector('.hb-time');
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-card" style="text-align:center;">
+                    <h3 style="margin-bottom:12px; color:var(--accent-green-bright);">Selecciona el Horario</h3>
+                    <div style="display:flex; justify-content:space-around; align-items:center; margin-bottom:16px;">
+                        <div>
+                            <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px;">Hora Inicio</div>
+                            <div class="time-picker-container">
+                                <div class="time-spinner"><select id="tpStartH">${generateHourOptions()}</select></div>
+                                <span>:</span>
+                                <div class="time-spinner"><select id="tpStartM">${generateMinuteOptions()}</select></div>
+                            </div>
+                        </div>
+                        <span style="font-weight:700;"> hasta </span>
+                        <div>
+                            <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px;">Hora Fin</div>
+                            <div class="time-picker-container">
+                                <div class="time-spinner"><select id="tpEndH">${generateHourOptions()}</select></div>
+                                <span>:</span>
+                                <div class="time-spinner"><select id="tpEndM">${generateMinuteOptions()}</select></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-modal" onclick="confirmTimeSelection(this)">Aceptar</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function generateHourOptions() {
+            let opts = '';
+            for(let i=0; i<24; i++) {
+                let h = i < 10 ? '0' + i : i;
+                opts += `<option value="${h}">${h}</option>`;
+            }
+            return opts;
+        }
+
+        function generateMinuteOptions() {
+            let opts = '';
+            for(let i=0; i<60; i+=5) {
+                let m = i < 10 ? '0' + i : i;
+                opts += `<option value="${m}">${m}</option>`;
+            }
+            return opts;
+        }
+
+        function confirmTimeSelection(btn) {
+            const card = btn.parentElement;
+            const sh = card.querySelector('#tpStartH').value;
+            const sm = card.querySelector('#tpStartM').value;
+            const eh = card.querySelector('#tpEndH').value;
+            const em = card.querySelector('#tpEndM').value;
             
-            db.config.categories = [
-                {
-                    name: document.getElementById('cat1Name').value || 'Categoría 1',
-                    amount: parseFloat(document.getElementById('cat1Amount').value) || 1.00,
-                    sub: document.getElementById('cat1Sub').value
-                },
-                {
-                    name: document.getElementById('cat2Name').value || 'Categoría 2',
-                    amount: parseFloat(document.getElementById('cat2Amount').value) || 1.00,
-                    sub: document.getElementById('cat2Sub').value
-                },
-                {
-                    name: document.getElementById('cat3Name').value || 'Categoría 3',
-                    amount: parseFloat(document.getElementById('cat3Amount').value) || 1.00,
-                    sub: document.getElementById('cat3Sub').value
-                }
-            ];
+            const timeStr = `${sh}:${sm} - ${eh}:${em}`;
+            // Buscar el input oculto activo
+            const activeRow = document.querySelector('.habit-builder-row:hover') || document.querySelector('.habit-builder-row');
+            if(activeRow) {
+                activeRow.querySelector('.hb-time').value = timeStr;
+            }
+            card.parentElement.remove();
+        }
+
+        function saveWizardConfiguration() {
+            db.config.target = parseFloat(document.getElementById('setupTarget').value) || 10.00;
+            
+            const updatedCategories = [];
+            FIXED_CAT_NAMES.forEach((name, cIdx) => {
+                const subInputs = document.querySelectorAll(`.sub-name-input[data-cat="${cIdx}"]`);
+                const subs = [];
+                subInputs.forEach(inp => {
+                    if(inp.value.trim() !== '') subs.push(inp.value.trim());
+                });
+                updatedCategories.push({ name, subs });
+            });
+            db.config.categories = updatedCategories;
 
             const rows = document.querySelectorAll('.habit-builder-row');
             const newHabits = [];
@@ -912,7 +1022,7 @@
                 if(title.trim() !== '') {
                     newHabits.push({
                         title: title,
-                        time: r.querySelector('.hb-time').value || '00:00',
+                        time: r.querySelector('.hb-time').value || '06:00 - 08:30',
                         icon: r.querySelector('.hb-icon').value || '📌'
                     });
                 }
@@ -928,7 +1038,7 @@
         }
 
         function saveDB() {
-            localStorage.setItem('mi_rutina_v3_db', JSON.stringify(db));
+            localStorage.setItem('mi_rutina_v4_db', JSON.stringify(db));
         }
     </script>
 </body>
