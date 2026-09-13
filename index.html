@@ -213,9 +213,11 @@
             outline: none;
         }
 
-        .amount-input::placeholder {
-            color: var(--text-sub);
-            opacity: 0.4;
+        /* Letras de ejemplo más oscurecidas y visibles */
+        .amount-input::placeholder, .wizard-input::placeholder {
+            color: #a0aec0;
+            opacity: 0.8;
+            font-style: italic;
         }
 
         .progress-bar-bg {
@@ -277,6 +279,11 @@
             font-weight: 700;
             font-size: 0.9rem;
             outline: none;
+        }
+
+        .breakdown-input-row input::placeholder {
+            color: #a0aec0;
+            opacity: 0.8;
         }
 
         .checklist-item {
@@ -378,7 +385,7 @@
             color: var(--accent-red);
         }
 
-        /* GLASSMORPHISM DINÁMICO (OPCIÓN 2) */
+        /* GLASSMORPHISM DINÁMICO */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -431,11 +438,6 @@
             outline: none;
         }
 
-        .wizard-input::placeholder {
-            color: var(--text-sub);
-            opacity: 0.5;
-        }
-
         .cat-config-box {
             background: rgba(13, 17, 23, 0.6);
             border: 1px solid var(--border-color);
@@ -451,16 +453,16 @@
             align-items: center;
         }
 
-        /* ESTILOS DEL TUTORIAL GUIADO PASO A PASO */
+        /* TUTORIAL GUIADO INTERACTIVO AVANZADO */
         .tutorial-tooltip {
-            position: absolute;
+            position: fixed;
             background: var(--bg-secondary);
             border: 2px solid var(--accent-orange-bright);
             border-radius: 12px;
-            padding: 14px;
-            width: 280px;
-            z-index: 300;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            padding: 16px;
+            width: 300px;
+            z-index: 400;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9);
             color: var(--text-main);
             animation: fadeIn 0.3s ease;
         }
@@ -474,15 +476,16 @@
         .tutorial-tooltip p {
             font-size: 0.8rem;
             color: var(--text-sub);
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             line-height: 1.4;
         }
 
         .spotlight-target {
             position: relative;
-            z-index: 250 !important;
-            box-shadow: 0 0 0 4px var(--accent-orange-bright) !important;
+            z-index: 350 !important;
+            box-shadow: 0 0 0 4px var(--accent-orange-bright), 0 0 20px rgba(245, 158, 11, 0.6) !important;
             border-radius: 8px;
+            background-color: var(--bg-secondary) !important;
         }
 
         @keyframes fadeIn {
@@ -530,12 +533,12 @@
             <span class="brand-title">Mi Rutina</span>
         </div>
         <div class="header-actions">
-            <button class="btn-icon-top" onclick="openWizard()">⚙️</button>
+            <button class="btn-icon-top" id="configBtnHeader" onclick="openWizard()">⚙️</button>
         </div>
     </header>
 
     <div class="container">
-        <div class="nav-tabs">
+        <div class="nav-tabs" id="navTabsContainer">
             <button class="tab-btn active" onclick="switchTab('today')">📅 Día Actual</button>
             <button class="tab-btn" onclick="switchTab('stats')">📊 Mes y Rendimiento</button>
         </div>
@@ -547,7 +550,7 @@
 
         <!-- VISTA DÍA ACTUAL -->
         <div id="view-today">
-            <div class="card">
+            <div class="card" id="cardFinance">
                 <div class="card-header">
                     <span class="card-title">💳 Ingresos y Metas</span>
                     <span class="badge badge-orange" id="statusBadge">En Progreso</span>
@@ -578,7 +581,7 @@
                 <div class="breakdown-grid" id="breakdownGridContainer"></div>
             </div>
 
-            <div class="card">
+            <div class="card" id="cardHabitsList">
                 <div class="card-header">
                     <span class="card-title">📋 Rutina y Hábitos</span>
                     <span class="badge badge-green" id="habitsCount">0/0 completados</span>
@@ -619,7 +622,7 @@
                 <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">Define tu meta total y tus 4 categorías fijas con opciones específicas.</p>
                 
                 <label class="input-label">Meta Diaria Total ($)</label>
-                <input type="number" id="setupTarget" class="wizard-input" placeholder="Ej: 10$" step="0.01">
+                <input type="number" id="setupTarget" class="wizard-input" placeholder="Ej: 10" step="0.01">
 
                 <div id="categoriesSetupContainer"></div>
 
@@ -640,7 +643,7 @@
     </div>
 
     <!-- CONTENEDOR DEL TUTORIAL GUIADO INTERACTIVO -->
-    <div id="tutorialOverlay" class="hidden" style="position:fixed; top:0; left:0; right:0; bottom:0; z-index:290; background:rgba(0,0,0,0.7);"></div>
+    <div id="tutorialOverlay" class="hidden" style="position:fixed; top:0; left:0; right:0; bottom:0; z-index:300; background:rgba(0,0,0,0.85); backdrop-filter: blur(4px);"></div>
 
     <script>
         const FIXED_CAT_NAMES = ['Ahorro / Inversión', 'Gastos fijos', 'Gastos operativos', 'Gastos innecesario'];
@@ -671,7 +674,7 @@
         }
 
         window.onload = function() {
-            const saved = localStorage.getItem('mi_rutina_v5_db');
+            const saved = localStorage.getItem('mi_rutina_v6_db');
             if (saved) {
                 db = JSON.parse(saved);
                 if(!db.config.categories || db.config.categories.length !== 4) {
@@ -684,10 +687,8 @@
             loadActiveDayData();
             renderHeatmaps();
 
-            // Si es la primera vez que entra, lanzamos el tutorial guiado al cerrar el wizard o al iniciar
             if(!db.tutorialCompleted && saved) {
-                // Ya se configuró antes pero nunca vio el tutorial post-config
-                // O si es totalmente nuevo, el tutorial arranca tras guardar el wizard
+                startInitialTutorial();
             }
         };
 
@@ -767,7 +768,7 @@
                         <div class="breakdown-subtext">• ${sub}:</div>
                         <div class="breakdown-input-row" style="margin-bottom:4px;">
                             <span style="color:var(--accent-green-bright)">$</span>
-                            <input type="number" class="sub-alloc-input" data-cat="${cIdx}" data-sub="${sIdx}" placeholder="Ej: 10$" step="0.01" value="${db.days[currentDateStr].subAllocations[`${cIdx}-${sIdx}`] || ''}" oninput="updateSubAllocation()">
+                            <input type="number" class="sub-alloc-input" data-cat="${cIdx}" data-sub="${sIdx}" placeholder="Ej: 10" step="0.01" value="${db.days[currentDateStr].subAllocations[`${cIdx}-${sIdx}`] || ''}" oninput="updateSubAllocation()">
                         </div>
                     `).join('');
                 } else {
@@ -946,7 +947,7 @@
             const row = document.createElement('div');
             row.className = 'sub-tag-row';
             row.innerHTML = `
-                <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" placeholder="Ej: Gasolina, Supermercado" style="margin:0; flex:1;">
+                <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" placeholder="Ej: Ejemplo: Gasolina" style="margin:0; flex:1;">
                 <button type="button" class="btn-icon-top" onclick="this.parentElement.remove()">❌</button>
             `;
             container.appendChild(row);
@@ -970,7 +971,7 @@
             row.className = 'habit-builder-row';
             row.style.cssText = "display:flex; gap:6px; margin-bottom:8px; align-items:center;";
             row.innerHTML = `
-                <input type="text" value="${icon}" style="width:45px; text-align:center;" class="wizard-input hb-icon">
+                <input type="text" value="${icon}" style="width:45px; text-align:center;" class="wizard-input hb-icon" placeholder="Ej: 📌">
                 <input type="text" value="${title}" placeholder="Ej: Rutina matutina, Gimnasio, tiempo libre..." style="flex:2;" class="wizard-input hb-title">
                 <button type="button" class="btn-icon-top" style="height:41px;" onclick="openTimePickerModal(this)">⏰ Horas</button>
                 <input type="hidden" class="hb-time" value="${time || '06:00 - 08:30'}">
@@ -982,7 +983,6 @@
             document.getElementById('wizardHabitsBuilder').appendChild(createHabitRowElement());
         }
 
-        // SELECTOR DE HORA GIRATORIO (WHEEL PICKER MODAL)
         function openTimePickerModal(btnElement) {
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
@@ -1083,42 +1083,43 @@
             loadActiveDayData();
             renderHeatmaps();
 
-            // Lanzar el tutorial interactivo inicial si es la primera vez
             startInitialTutorial();
         }
 
-        // SISTEMA DE TUTORIAL GUIADO INTERACTIVO (SOLO LA PRIMERA VEZ)
+        // TUTORIAL GUIADO PASO A PASO CON ENFOQUE
         function startInitialTutorial() {
             currentTutorialStep = 1;
             showTutorialStep();
         }
 
         function showTutorialStep() {
-            // Eliminar tooltip anterior si existe
             const oldTip = document.getElementById('tourTooltip');
             if(oldTip) oldTip.remove();
+            
+            // Limpiar focos anteriores
+            document.querySelectorAll('.spotlight-target').forEach(el => el.classList.remove('spotlight-target'));
             document.getElementById('tutorialOverlay').classList.remove('hidden');
 
             const steps = [
                 {
-                    title: "1. Monto Diario y Meta",
-                    desc: "Aquí anotas el dinero que vas generando. La barra se llena según tu meta general.",
-                    selector: ".card:nth-of-type(1)"
+                    title: "1. Botón de Configuración",
+                    desc: "Este es el botón con el icono de engranaje (⚙️). Recuerda que **puedes cambiar tu configuración cuando quieras** ingresando aquí en cualquier momento.",
+                    selector: "#configBtnHeader"
                 },
                 {
-                    title: "2. Categorías y Sub-destinos",
-                    desc: "Tus 4 categorías fijas. Aquí distribuyes manualmente tus dólares hacia tus sub-destinos específicos.",
-                    selector: "#breakdownGridContainer"
+                    title: "2. Monto Diario y Meta",
+                    desc: "Aquí anotas el dinero que vas generando. Ejemplo: puedes escribir 10 para tu meta diaria.",
+                    selector: "#cardFinance"
                 },
                 {
                     title: "3. Hábitos y Horarios",
                     desc: "Marca tus tareas completadas del día. Tienen horas asignadas para mantenerte organizado.",
-                    selector: "#checklistContainer"
+                    selector: "#cardHabitsList"
                 },
                 {
                     title: "4. Historial Mensual",
-                    desc: "En la pestaña de estadísticas puedes abrir cualquier día anterior o mes pasado para consultarlo.",
-                    selector: ".nav-tabs"
+                    desc: "En esta barra cambias entre tu día actual y tus estadísticas de rendimiento mensual.",
+                    selector: "#navTabsContainer"
                 }
             ];
 
@@ -1136,13 +1137,20 @@
                 return;
             }
 
+            targetEl.classList.add('spotlight-target');
             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             const rect = targetEl.getBoundingClientRect();
             const tip = document.createElement('div');
             tip.id = 'tourTooltip';
             tip.className = 'tutorial-tooltip';
-            tip.style.top = Math.min(window.innerHeight - 200, Math.max(20, rect.bottom + 10)) + 'px';
+            
+            // Posicionar tooltip de manera inteligente
+            let topPos = rect.bottom + 12;
+            if (topPos > window.innerHeight - 220) {
+                topPos = Math.max(20, rect.top - 200);
+            }
+            tip.style.top = topPos + 'px';
             tip.style.left = '16px';
             tip.style.right = '16px';
             tip.style.maxWidth = '460px';
@@ -1157,12 +1165,13 @@
         }
 
         function nextTutorialStep() {
+            document.querySelectorAll('.spotlight-target').forEach(el => el.classList.remove('spotlight-target'));
             currentTutorialStep++;
             showTutorialStep();
         }
 
         function saveDB() {
-            localStorage.setItem('mi_rutina_v5_db', JSON.stringify(db));
+            localStorage.setItem('mi_rutina_v6_db', JSON.stringify(db));
         }
     </script>
 </body>
