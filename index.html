@@ -213,7 +213,6 @@
             outline: none;
         }
 
-        /* Letras de ejemplo más oscuras y visibles */
         .amount-input::placeholder, .wizard-input::placeholder, .sub-alloc-input::placeholder {
             color: #b0bec5 !important;
             opacity: 1 !important;
@@ -449,7 +448,7 @@
             align-items: center;
         }
 
-        /* TUTORIAL GUIADO INTERACTIVO MEJORADO */
+        /* TUTORIAL GUIADO INTERACTIVO CORREGIDO Y SEGURO */
         .tutorial-tooltip {
             position: fixed;
             background: var(--bg-secondary);
@@ -457,7 +456,7 @@
             border-radius: 12px;
             padding: 16px;
             width: 90%;
-            max-width: 420px;
+            max-width: 400px;
             z-index: 400;
             box-shadow: 0 15px 35px rgba(0,0,0,0.9);
             color: var(--text-main);
@@ -492,7 +491,6 @@
             to { opacity: 1; transform: translate(-50%, 0); }
         }
 
-        /* SELECTOR DE HORA GIRATORIO */
         .time-picker-container {
             display: flex;
             gap: 8px;
@@ -673,7 +671,7 @@
         }
 
         window.onload = function() {
-            const saved = localStorage.getItem('mi_rutina_v6_db');
+            const saved = localStorage.getItem('mi_rutina_v7_db');
             if (saved) {
                 db = JSON.parse(saved);
                 if(!db.config.categories || db.config.categories.length !== 4) {
@@ -686,6 +684,7 @@
             loadActiveDayData();
             renderHeatmaps();
 
+            // Si es la primera vez, mostramos el tutorial DIRECTAMENTE en la pantalla principal apuntando a la tuerca ⚙️
             if(!db.tutorialCompleted && saved) {
                 startInitialTutorial();
             }
@@ -1052,7 +1051,7 @@
             const updatedCategories = [];
             FIXED_CAT_NAMES.forEach((name, cIdx) => {
                 const subInputs = document.querySelectorAll(`.sub-name-input[data-cat="${cIdx}"]`);
-                const subs = [];
+                let subs = [];
                 subInputs.forEach(inp => {
                     if(inp.value.trim() !== '') subs.push(inp.value.trim());
                 });
@@ -1081,11 +1080,9 @@
             wizardNext(1);
             loadActiveDayData();
             renderHeatmaps();
-
-            startInitialTutorial();
         }
 
-        // TUTORIAL GUIADO CON POSICIONAMIENTO SEGURO ABAJO
+        // TUTORIAL GUIADO INICIAL: Empieza en la pantalla principal apuntando a la tuerca ⚙️
         function startInitialTutorial() {
             currentTutorialStep = 1;
             showTutorialStep();
@@ -1100,8 +1097,8 @@
 
             const steps = [
                 {
-                    title: "1. Botón de Configuración",
-                    desc: "Este es el botón con el icono de engranaje (⚙️). Recuerda que **puedes cambiar tu configuración cuando quieras** ingresando aquí en cualquier momento.",
+                    title: "1. Menú de Configuración (⚙️)",
+                    desc: "¡Presiona aquí! Este es el botón de la tuerca. Úsalo para cambiar tus metas financieras y tus hábitos en cualquier momento.",
                     selector: "#configBtnHeader"
                 },
                 {
@@ -1143,9 +1140,12 @@
             tip.id = 'tourTooltip';
             tip.className = 'tutorial-tooltip';
             
-            // Forzar siempre una posición segura por debajo del elemento iluminado para no tapar la barra superior
+            // Posicionamiento seguro en pantalla según el paso actual
             let topPos = rect.bottom + 16;
-            if (topPos > window.innerHeight - 240) {
+            if (currentTutorialStep === 1) {
+                // Si apunta arriba a la tuerca, ponemos la tarjeta más abajo para que se vea perfectamente en pantalla
+                topPos = 80; 
+            } else if (topPos > window.innerHeight - 240) {
                 topPos = Math.max(70, rect.top - 220);
             }
             tip.style.top = topPos + 'px';
@@ -1165,7 +1165,7 @@
         }
 
         function saveDB() {
-            localStorage.setItem('mi_rutina_v6_db', JSON.stringify(db));
+            localStorage.setItem('mi_rutina_v7_db', JSON.stringify(db));
         }
     </script>
 </body>
