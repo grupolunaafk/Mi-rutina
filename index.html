@@ -448,7 +448,7 @@
             align-items: center;
         }
 
-        /* TUTORIAL GUIADO INTERACTIVO CORREGIDO Y SEGURO */
+        /* TUTORIAL GUIADO INTERACTIVO */
         .tutorial-tooltip {
             position: fixed;
             background: var(--bg-secondary);
@@ -671,22 +671,22 @@
         }
 
         window.onload = function() {
-            const saved = localStorage.getItem('mi_rutina_v7_db');
+            const saved = localStorage.getItem('mi_rutina_v8_db');
             if (saved) {
                 db = JSON.parse(saved);
                 if(!db.config.categories || db.config.categories.length !== 4) {
                     db.config.categories = FIXED_CAT_NAMES.map(name => ({ name, subs: [] }));
                 }
+                initDateSelector();
+                loadActiveDayData();
+                renderHeatmaps();
+                
+                // Si ya hay datos pero nunca completó el tutorial, se lo mostramos
+                if (!db.tutorialCompleted) {
+                    startInitialTutorial();
+                }
             } else {
                 openWizard();
-            }
-            initDateSelector();
-            loadActiveDayData();
-            renderHeatmaps();
-
-            // Si es la primera vez, mostramos el tutorial DIRECTAMENTE en la pantalla principal apuntando a la tuerca ⚙️
-            if(!db.tutorialCompleted && saved) {
-                startInitialTutorial();
             }
         };
 
@@ -912,7 +912,7 @@
         }
 
         function openWizard() {
-            document.getElementById('setupTarget').value = db.config.target;
+            document.getElementById('setupTarget').value = db.config.target === 10 ? '' : db.config.target;
             
             const catContainer = document.getElementById('categoriesSetupContainer');
             catContainer.innerHTML = '';
@@ -921,7 +921,7 @@
                 box.className = 'cat-config-box';
                 let subsHtml = cat.subs.map((sub, sIdx) => `
                     <div class="sub-tag-row">
-                        <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" value="${sub}" placeholder="Ej: Ejemplo: Gasolina" style="margin:0; flex:1;">
+                        <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" value="${sub}" placeholder="Ej: Gasolina" style="margin:0; flex:1;">
                         <button type="button" class="btn-icon-top" onclick="this.parentElement.remove()">❌</button>
                     </div>
                 `).join('');
@@ -945,7 +945,7 @@
             const row = document.createElement('div');
             row.className = 'sub-tag-row';
             row.innerHTML = `
-                <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" placeholder="Ej: Ejemplo: Gasolina" style="margin:0; flex:1;">
+                <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" placeholder="Ej: Gasolina" style="margin:0; flex:1;">
                 <button type="button" class="btn-icon-top" onclick="this.parentElement.remove()">❌</button>
             `;
             container.appendChild(row);
@@ -969,8 +969,8 @@
             row.className = 'habit-builder-row';
             row.style.cssText = "display:flex; gap:6px; margin-bottom:8px; align-items:center;";
             row.innerHTML = `
-                <input type="text" value="${icon}" style="width:45px; text-align:center;" class="wizard-input hb-icon" placeholder="Ej: 📌">
-                <input type="text" value="${title}" placeholder="Ej: Ejemplo: Gimnasio" style="flex:2;" class="wizard-input hb-title">
+                <input type="text" value="${icon === '📌' ? '' : icon}" style="width:45px; text-align:center;" class="wizard-input hb-icon" placeholder="📌">
+                <input type="text" value="${title === 'Rutina matutina' || title === 'Gimnasio' || title === 'Salida 1' || title === 'Estudio' || title === 'Tiempo libre' ? '' : title}" placeholder="Ej: Gimnasio" style="flex:2;" class="wizard-input hb-title">
                 <button type="button" class="btn-icon-top" style="height:41px;" onclick="openTimePickerModal(this)">⏰ Horas</button>
                 <input type="hidden" class="hb-time" value="${time || '06:00 - 08:30'}">
             `;
@@ -1078,12 +1078,20 @@
             saveDB();
             document.getElementById('wizardModal').classList.add('hidden');
             wizardNext(1);
+            initDateSelector();
             loadActiveDayData();
             renderHeatmaps();
+
+            if (db.tutorialCompleted && savedHasDataOrTutorial()) {
+                startTutorial();
+            }
         }
 
-        // TUTORIAL GUIADO INICIAL: Empieza en la pantalla principal apuntando a la tuerca ⚙️
-        function startInitialTutorial() {
+        function savedHasDataOrTutorial() {
+            return true;
+        }
+
+        function startTutorial() {
             currentTutorialStep = 1;
             showTutorialStep();
         }
@@ -1097,24 +1105,24 @@
 
             const steps = [
                 {
-                    title: "1. Menú de Configuración (⚙️)",
-                    desc: "¡Presiona aquí! Este es el botón de la tuerca. Úsalo para cambiar tus metas financieras y tus hábitos en cualquier momento.",
-                    selector: "#configBtnHeader"
-                },
-                {
-                    title: "2. Monto Diario y Meta",
+                    title: "1. Monto Diario y Meta",
                     desc: "Aquí anotas el dinero que vas generando. Ejemplo: puedes escribir 10 para tu meta diaria.",
                     selector: "#cardFinance"
                 },
                 {
-                    title: "3. Hábitos y Horarios",
+                    title: "2. Hábitos y Horarios",
                     desc: "Marca tus tareas completadas del día. Tienen horas asignadas para mantenerte organizado.",
                     selector: "#cardHabitsList"
                 },
                 {
-                    title: "4. Historial Mensual",
+                    title: "3. Historial Mensual",
                     desc: "En esta barra cambias entre tu día actual y tus estadísticas de rendimiento mensual.",
                     selector: "#navTabsContainer"
+                },
+                {
+                    title: "4. Menú de Configuración",
+                    desc: "Puedes usar este botón con el ícono de engranaje para volver a cambiar tus metas o hábitos cuando quieras.",
+                    selector: "#configBtnHeader"
                 }
             ];
 
@@ -1140,12 +1148,8 @@
             tip.id = 'tourTooltip';
             tip.className = 'tutorial-tooltip';
             
-            // Posicionamiento seguro en pantalla según el paso actual
             let topPos = rect.bottom + 16;
-            if (currentTutorialStep === 1) {
-                // Si apunta arriba a la tuerca, ponemos la tarjeta más abajo para que se vea perfectamente en pantalla
-                topPos = 80; 
-            } else if (topPos > window.innerHeight - 240) {
+            if (topPos > window.innerHeight - 240) {
                 topPos = Math.max(70, rect.top - 220);
             }
             tip.style.top = topPos + 'px';
@@ -1153,7 +1157,7 @@
             tip.innerHTML = `
                 <h4>${current.title}</h4>
                 <p>${current.desc}</p>
-                <button class="btn-modal" style="margin-top:4px; padding:8px;" onclick="nextTutorialStep()">${currentTutorialStep === steps.length ? '¡Entendido, Comenzar!' : 'Siguiente ➡️'}</button>
+                <button class="btn-modal" style="margin-top:4px; padding:8px;" onclick="nextTutorialStep()">${currentTutorialStep === steps.length ? '¡Entendido!' : 'Siguiente ➡️'}</button>
             `;
             document.body.appendChild(tip);
         }
@@ -1165,7 +1169,7 @@
         }
 
         function saveDB() {
-            localStorage.setItem('mi_rutina_v7_db', JSON.stringify(db));
+            localStorage.setItem('mi_rutina_v8_db', JSON.stringify(db));
         }
     </script>
 </body>
