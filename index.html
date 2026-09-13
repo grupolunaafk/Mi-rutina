@@ -378,11 +378,12 @@
             color: var(--accent-red);
         }
 
+        /* GLASSMORPHISM DINÁMICO (OPCIÓN 2) */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(4px);
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(8px);
             z-index: 200;
             display: flex;
             align-items: center;
@@ -391,14 +392,16 @@
         }
 
         .modal-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
+            background: rgba(22, 27, 34, 0.95);
+            border: 1px solid rgba(48, 54, 61, 0.8);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.6);
             border-radius: 16px;
             width: 100%;
             max-width: 450px;
             padding: 20px;
             max-height: 90vh;
             overflow-y: auto;
+            backdrop-filter: blur(12px);
         }
 
         .wizard-step { display: none; }
@@ -412,13 +415,13 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 12px;
-            background-color: var(--accent-green);
+            background: var(--accent-green);
             color: white;
         }
 
         .wizard-input {
             width: 100%;
-            background: var(--bg-primary);
+            background: rgba(13, 17, 23, 0.8);
             border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 10px;
@@ -430,11 +433,11 @@
 
         .wizard-input::placeholder {
             color: var(--text-sub);
-            opacity: 0.4;
+            opacity: 0.5;
         }
 
         .cat-config-box {
-            background: var(--bg-primary);
+            background: rgba(13, 17, 23, 0.6);
             border: 1px solid var(--border-color);
             padding: 10px;
             border-radius: 8px;
@@ -448,7 +451,46 @@
             align-items: center;
         }
 
-        /* SELECTOR DE HORA GIRATORIO (WHEEL PICKER) */
+        /* ESTILOS DEL TUTORIAL GUIADO PASO A PASO */
+        .tutorial-tooltip {
+            position: absolute;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-orange-bright);
+            border-radius: 12px;
+            padding: 14px;
+            width: 280px;
+            z-index: 300;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            color: var(--text-main);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tutorial-tooltip h4 {
+            color: var(--accent-orange-bright);
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .tutorial-tooltip p {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .spotlight-target {
+            position: relative;
+            z-index: 250 !important;
+            box-shadow: 0 0 0 4px var(--accent-orange-bright) !important;
+            border-radius: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SELECTOR DE HORA GIRATORIO */
         .time-picker-container {
             display: flex;
             gap: 8px;
@@ -459,12 +501,6 @@
             margin-bottom: 10px;
             align-items: center;
             justify-content: center;
-        }
-
-        .time-spinner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .time-spinner select {
@@ -603,6 +639,9 @@
         </div>
     </div>
 
+    <!-- CONTENEDOR DEL TUTORIAL GUIADO INTERACTIVO -->
+    <div id="tutorialOverlay" class="hidden" style="position:fixed; top:0; left:0; right:0; bottom:0; z-index:290; background:rgba(0,0,0,0.7);"></div>
+
     <script>
         const FIXED_CAT_NAMES = ['Ahorro / Inversión', 'Gastos fijos', 'Gastos operativos', 'Gastos innecesario'];
 
@@ -611,14 +650,19 @@
                 target: 10.00,
                 categories: FIXED_CAT_NAMES.map(name => ({ name, subs: [] })),
                 habitsTemplate: [
-                    { title: 'Salida 1', time: '06:00 - 08:30', icon: '🚗' },
-                    { title: 'Preparación de Comida', time: '08:30 - 10:30', icon: '🍳' }
+                    { title: 'Rutina matutina', time: '06:00 - 07:00', icon: '🌅' },
+                    { title: 'Gimnasio', time: '07:00 - 08:30', icon: '🏋️' },
+                    { title: 'Salida 1', time: '09:00 - 12:00', icon: '🚗' },
+                    { title: 'Estudio', time: '14:00 - 16:00', icon: '📚' },
+                    { title: 'Tiempo libre', time: '18:00 - 21:00', icon: '☕' }
                 ]
             },
-            days: {}
+            days: {},
+            tutorialCompleted: false
         };
 
         let currentDateStr = getFormattedDate(0);
+        let currentTutorialStep = 0;
 
         function getFormattedDate(offsetDays = 0) {
             const d = new Date();
@@ -627,10 +671,9 @@
         }
 
         window.onload = function() {
-            const saved = localStorage.getItem('mi_rutina_v4_db');
+            const saved = localStorage.getItem('mi_rutina_v5_db');
             if (saved) {
                 db = JSON.parse(saved);
-                // Asegurar compatibilidad de categorías fijas
                 if(!db.config.categories || db.config.categories.length !== 4) {
                     db.config.categories = FIXED_CAT_NAMES.map(name => ({ name, subs: [] }));
                 }
@@ -640,6 +683,12 @@
             initDateSelector();
             loadActiveDayData();
             renderHeatmaps();
+
+            // Si es la primera vez que entra, lanzamos el tutorial guiado al cerrar el wizard o al iniciar
+            if(!db.tutorialCompleted && saved) {
+                // Ya se configuró antes pero nunca vio el tutorial post-config
+                // O si es totalmente nuevo, el tutorial arranca tras guardar el wizard
+            }
         };
 
         function switchTab(tab) {
@@ -736,12 +785,10 @@
         function updateSubAllocation() {
             ensureDayRecord(currentDateStr);
             const inputs = document.querySelectorAll('.sub-alloc-input');
-            let totalAllocated = 0;
             inputs.forEach(inp => {
                 const key = `${inp.dataset.cat}-${inp.dataset.sub}`;
                 const val = parseFloat(inp.value) || 0;
                 db.days[currentDateStr].subAllocations[key] = val;
-                totalAllocated += val;
             });
             saveDB();
         }
@@ -875,7 +922,7 @@
                 box.className = 'cat-config-box';
                 let subsHtml = cat.subs.map((sub, sIdx) => `
                     <div class="sub-tag-row">
-                        <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" value="${sub}" placeholder="Nombre específico" style="margin:0; flex:1;">
+                        <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" value="${sub}" placeholder="Ej: Gasolina, Supermercado" style="margin:0; flex:1;">
                         <button type="button" class="btn-icon-top" onclick="this.parentElement.remove()">❌</button>
                     </div>
                 `).join('');
@@ -899,7 +946,7 @@
             const row = document.createElement('div');
             row.className = 'sub-tag-row';
             row.innerHTML = `
-                <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" placeholder="Nombre específico" style="margin:0; flex:1;">
+                <input type="text" class="wizard-input sub-name-input" data-cat="${cIdx}" placeholder="Ej: Gasolina, Supermercado" style="margin:0; flex:1;">
                 <button type="button" class="btn-icon-top" onclick="this.parentElement.remove()">❌</button>
             `;
             container.appendChild(row);
@@ -921,10 +968,11 @@
         function createHabitRowElement(title='', time='', icon='📌') {
             const row = document.createElement('div');
             row.className = 'habit-builder-row';
+            row.style.cssText = "display:flex; gap:6px; margin-bottom:8px; align-items:center;";
             row.innerHTML = `
-                <input type="text" value="${icon}" style="width:45px; text-align:center;" class="hb-icon">
-                <input type="text" value="${title}" placeholder="Actividad" style="flex:2;" class="hb-title">
-                <button type="button" class="btn-icon-top" onclick="openTimePickerModal(this)">⏰ Horas</button>
+                <input type="text" value="${icon}" style="width:45px; text-align:center;" class="wizard-input hb-icon">
+                <input type="text" value="${title}" placeholder="Ej: Rutina matutina, Gimnasio, tiempo libre..." style="flex:2;" class="wizard-input hb-title">
+                <button type="button" class="btn-icon-top" style="height:41px;" onclick="openTimePickerModal(this)">⏰ Horas</button>
                 <input type="hidden" class="hb-time" value="${time || '06:00 - 08:30'}">
             `;
             return row;
@@ -936,7 +984,6 @@
 
         // SELECTOR DE HORA GIRATORIO (WHEEL PICKER MODAL)
         function openTimePickerModal(btnElement) {
-            const hiddenInput = btnElement.parentElement.querySelector('.hb-time');
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.innerHTML = `
@@ -993,7 +1040,6 @@
             const em = card.querySelector('#tpEndM').value;
             
             const timeStr = `${sh}:${sm} - ${eh}:${em}`;
-            // Buscar el input oculto activo
             const activeRow = document.querySelector('.habit-builder-row:hover') || document.querySelector('.habit-builder-row');
             if(activeRow) {
                 activeRow.querySelector('.hb-time').value = timeStr;
@@ -1030,15 +1076,93 @@
 
             if(newHabits.length > 0) db.config.habitsTemplate = newHabits;
 
+            db.tutorialCompleted = true;
             saveDB();
             document.getElementById('wizardModal').classList.add('hidden');
             wizardNext(1);
             loadActiveDayData();
             renderHeatmaps();
+
+            // Lanzar el tutorial interactivo inicial si es la primera vez
+            startInitialTutorial();
+        }
+
+        // SISTEMA DE TUTORIAL GUIADO INTERACTIVO (SOLO LA PRIMERA VEZ)
+        function startInitialTutorial() {
+            currentTutorialStep = 1;
+            showTutorialStep();
+        }
+
+        function showTutorialStep() {
+            // Eliminar tooltip anterior si existe
+            const oldTip = document.getElementById('tourTooltip');
+            if(oldTip) oldTip.remove();
+            document.getElementById('tutorialOverlay').classList.remove('hidden');
+
+            const steps = [
+                {
+                    title: "1. Monto Diario y Meta",
+                    desc: "Aquí anotas el dinero que vas generando. La barra se llena según tu meta general.",
+                    selector: ".card:nth-of-type(1)"
+                },
+                {
+                    title: "2. Categorías y Sub-destinos",
+                    desc: "Tus 4 categorías fijas. Aquí distribuyes manualmente tus dólares hacia tus sub-destinos específicos.",
+                    selector: "#breakdownGridContainer"
+                },
+                {
+                    title: "3. Hábitos y Horarios",
+                    desc: "Marca tus tareas completadas del día. Tienen horas asignadas para mantenerte organizado.",
+                    selector: "#checklistContainer"
+                },
+                {
+                    title: "4. Historial Mensual",
+                    desc: "En la pestaña de estadísticas puedes abrir cualquier día anterior o mes pasado para consultarlo.",
+                    selector: ".nav-tabs"
+                }
+            ];
+
+            if(currentTutorialStep > steps.length) {
+                document.getElementById('tutorialOverlay').classList.add('hidden');
+                return;
+            }
+
+            const current = steps[currentTutorialStep - 1];
+            const targetEl = document.querySelector(current.selector);
+            
+            if(!targetEl) {
+                currentTutorialStep++;
+                showTutorialStep();
+                return;
+            }
+
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            const rect = targetEl.getBoundingClientRect();
+            const tip = document.createElement('div');
+            tip.id = 'tourTooltip';
+            tip.className = 'tutorial-tooltip';
+            tip.style.top = Math.min(window.innerHeight - 200, Math.max(20, rect.bottom + 10)) + 'px';
+            tip.style.left = '16px';
+            tip.style.right = '16px';
+            tip.style.maxWidth = '460px';
+            tip.style.margin = '0 auto';
+
+            tip.innerHTML = `
+                <h4>${current.title}</h4>
+                <p>${current.desc}</p>
+                <button class="btn-modal" style="margin-top:4px; padding:8px;" onclick="nextTutorialStep()">${currentTutorialStep === steps.length ? '¡Entendido, Comenzar!' : 'Siguiente ➡️'}</button>
+            `;
+            document.body.appendChild(tip);
+        }
+
+        function nextTutorialStep() {
+            currentTutorialStep++;
+            showTutorialStep();
         }
 
         function saveDB() {
-            localStorage.setItem('mi_rutina_v4_db', JSON.stringify(db));
+            localStorage.setItem('mi_rutina_v5_db', JSON.stringify(db));
         }
     </script>
 </body>
